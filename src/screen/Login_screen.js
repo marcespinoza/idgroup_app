@@ -1,32 +1,49 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, Dimensions, Image,Form, Button , TouchableOpacity} from 'react-native';
+import {Alert, StyleSheet, Text, View, TextInput, Dimensions, Image,Form, Button , TouchableOpacity} from 'react-native';
 import {loadAsync} from 'expo-font';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const {width: WIDTH} = Dimensions.get('window')
 
+export default class Login extends React.Component {
 
-   const LoginScreen = () => { return (
+  state={
+    usuario:'',
+    contraseña:'',
+    validity:true
+  }
+
+   render() { return (
       <View style={styles.container}>
            <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
            <View style={styles.text_input}>          
              <View style={styles.logoContainer}>
              <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
-             <TextInput style={styles.input}   placeholder={'Usuario'} placeholderTextColor={'#626262'}/>
+             <TextInput style={styles.input}   placeholder={'Usuario'} placeholderTextColor={'#626262'}
+             onChangeText={(value)=>this.setState({usuario:value,validity:false})}
+             value={this.state.usuario}/>
           </View>   
           <View style={styles.logoContainer}>
              <Icon name="lock" size={25} color="#000000" style={styles.inputIcon}/>
-             <TextInput style={styles.input}  placeholder={'Contraseña'}  placeholderTextColor={'#626262'}/>
+             <TextInput style={styles.input}  placeholder={'Contraseña'}  placeholderTextColor={'#626262'}
+             onChangeText={(value)=>this.setState({contraseña:value,validity:false})}
+             value={this.state.contraseña}/>
           </View>
-          <TouchableOpacity
-            style={styles.button}>
-          <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Main')} 
+              // disabled={(this.state.usuario == '' || this.state.contraseña == '')} 
+              style={this.state.usuario == '' || this.state.contraseña == '' ? styles.button : styles.button }>
+              <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
           </View>
 
       </View>
     );
   }
+
+  onLoginButton() {  
+    Alert.alert('You clicked the button!')  
+}  
+}
    
   
   
@@ -58,14 +75,14 @@ const {width: WIDTH} = Dimensions.get('window')
       paddingLeft:45,
       height: 44,
       width: WIDTH - 55,
-      borderBottomColor:'#323232',
+      borderBottomColor:'#c1c1c1',
       borderBottomWidth:1
     },
   
     imagen:{
       width: 200,
       height:200,
-      top:40,      
+      top:50,      
       resizeMode: 'contain',
       transform: [{ scale: 0.85 }]
     },
@@ -75,13 +92,23 @@ const {width: WIDTH} = Dimensions.get('window')
       alignSelf:'center',
       height: 44,
       width: WIDTH - 55,
-      top:20,
       backgroundColor:'#323232',
-      borderColor:'#323232',
-      borderWidth:1,
       padding:10,
-      borderRadius:25
+      borderRadius:25,
+      position: 'absolute',
+      bottom:10
    },
+   buttonDisabled: {
+    alignItems: 'center', 
+    justifyContent:'center',
+    alignSelf:'center',
+    height: 44,
+    width: WIDTH - 55,
+    backgroundColor:'#c1c1c1',
+    padding:10,
+    borderRadius:25,
+    position: 'absolute',
+    bottom:10
+ },
   });
 
-  export default LoginScreen;

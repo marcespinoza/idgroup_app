@@ -2,11 +2,29 @@ import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, StatusBar  } from 'react-native';
 import {loadAsync} from 'expo-font';
 import * as Font from "expo-font";
-import LoginScreen from "./src/screen/Login_screen.js";
+import Login from "./src/screen/Login_screen.js";
+import Main from "./src/screen/Main_screen.js";
+import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 
+
+const AppNavigator = createStackNavigator(
+  {
+  LoginScreen: { screen: Login },
+  Main: { screen: Main },
+  },
+  {
+    headerMode: 'none',
+  },
+  {
+    initialRouteName: 'LoginScreen',
+    }
+);
+
+const Appcontainer = createAppContainer(AppNavigator);
 
 export default class App extends React.Component {
-  state = {
+  state = {  
     assetsLoaded: false,
 };
   async componentDidMount() {
@@ -20,9 +38,7 @@ export default class App extends React.Component {
     const {assetsLoaded} = this.state;  
     if( assetsLoaded ) {
       return(
-      <View style={styles.container}>
-        <LoginScreen/>
-      </View>
+         <Appcontainer />
     );
   }else{
     return (
