@@ -6,6 +6,8 @@ import Login from "./src/screen/Login_screen.js";
 import Main from "./src/screen/Main_screen.js";
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
+import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
+import {useNavigation } from '@react-navigation/native';
 
 
 const AppNavigator = createStackNavigator(
@@ -35,6 +37,7 @@ export default class App extends React.Component {
 }
 
   render() {
+
     const {assetsLoaded} = this.state;  
     if( assetsLoaded ) {
       return(
