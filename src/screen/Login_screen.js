@@ -1,21 +1,30 @@
 import React from 'react';
-import {Alert, StyleSheet, Text, View, TextInput, Dimensions, Image,Form, Button , TouchableOpacity} from 'react-native';
-import {loadAsync} from 'expo-font';
+import {Alert, StyleSheet, Text, View, TextInput, Dimensions, Image, ActivityIndicator, TouchableOpacity, Modal} from 'react-native';
+import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Loader from '../utils/Loader.js'
 
 const {width: WIDTH} = Dimensions.get('window')
 
 export default class Login extends React.Component {
 
-  state={
-    usuario:'',
-    contraseña:'',
-    validity:true
+  constructor(){
+      super();
+      this.state={
+        usuario:'',
+        contraseña:'',
+        validity:true,
+        loading: false
+      }
   }
+
+ 
 
    render() { return (
       <View style={styles.container}>
-           <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
+       <Loader
+          loading={this.state.loading} />
+                     <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
            <View style={styles.text_input}>          
              <View style={styles.logoContainer}>
              <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
@@ -29,29 +38,49 @@ export default class Login extends React.Component {
              onChangeText={(value)=>this.setState({contraseña:value,validity:false})}
              value={this.state.contraseña}/>
           </View>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Main')} 
+          <TouchableOpacity onPress={this.login
+            // () => this.props.navigation.navigate('Main')
+          } 
               // disabled={(this.state.usuario == '' || this.state.contraseña == '')} 
               style={this.state.usuario == '' || this.state.contraseña == '' ? styles.button : styles.button }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
           </View>
-
       </View>
     );
   }
 
-  onLoginButton() {  
-    Alert.alert('You clicked the button!')  
-}  
+  login = async =>{
+    const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+    const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
+    this.setState({loading:true});
+    axios.post(PROXY_URL+URL, {
+    dni: '31897311 ',
+    clave: '1234',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+  })
+  .then(function(response) {
+    // handle success
+    let resp = response.data;
+    this.setState({loading:false});
+    this.props.navigation.navigate('Main')
+  }.bind(this))
+  .catch(function(error) {
+    this.setState({loading:false});
+    alert(error.message);
+  }.bind(this));
+
 }
-   
-  
+}  
   
   const styles = StyleSheet.create({
     container: {
-      backgroundColor: '#fff',
+      backgroundColor: '#ffffff',
       flex: 1,
-       alignItems: 'center'
+      alignItems: 'center',
+      justifyContent:'center'
     },
 
     text_input:{
@@ -110,5 +139,14 @@ export default class Login extends React.Component {
     position: 'absolute',
     bottom:10
  },
+ activityIndicator: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  alignItems: 'center',
+  justifyContent: 'center'
+}
   });
 
