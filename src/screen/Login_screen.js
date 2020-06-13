@@ -3,8 +3,11 @@ import {Alert, StyleSheet, Text, View, TextInput, Dimensions, Image, ActivityInd
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../utils/Loader.js'
+import { Snackbar,DefaultTheme,  } from 'react-native-paper';
+
 
 const {width: WIDTH} = Dimensions.get('window')
+
 
 export default class Login extends React.Component {
 
@@ -14,16 +17,27 @@ export default class Login extends React.Component {
         usuario:'',
         contraseña:'',
         validity:true,
-        loading: false
+        loading: false,
+        showsnack: false
       }
   }
+  
 
- 
+  _onToggleSnackBar = () => this.setState(showsnack => ({ visible: !showsnack.visible }));
+
+  _onDismissSnackBar = () => this.setState({ showsnack: false });
 
    render() { return (
       <View style={styles.container}>
-       <Loader
-          loading={this.state.loading} />
+       <Loader  loading={this.state.loading} />
+       <Snackbar
+          visible={this.state.showsnack}
+          onDismiss={this._onDismissSnackBar}
+          duration={3000}
+          style={styles.snack}
+        >
+          Datos incorrectos.
+        </Snackbar>
                      <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
            <View style={styles.text_input}>          
              <View style={styles.logoContainer}>
@@ -54,22 +68,27 @@ export default class Login extends React.Component {
     const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
     const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
     this.setState({loading:true});
-    axios.post(PROXY_URL+URL, {
+    axios.post(URL, {
     dni: '31897311 ',
-    clave: '1234',
+    clave: '12345',
     headers: {
       'Access-Control-Allow-Origin': '*',
+      "Access-Control-Allow-Headers":"X-Requested-With"
     },
   })
   .then(function(response) {
     // handle success
     let resp = response.data;
     this.setState({loading:false});
-    this.props.navigation.navigate('Main')
+    if(resp.status==true){
+      this.props.navigation.navigate('Main')
+    }else{
+      this.setState({showsnack:true});
+    }
   }.bind(this))
   .catch(function(error) {
     this.setState({loading:false});
-    alert(error.message);
+    alert(error.response.request._response );
   }.bind(this));
 
 }
@@ -82,7 +101,10 @@ export default class Login extends React.Component {
       alignItems: 'center',
       justifyContent:'center'
     },
-
+    snack:{
+      color:'#ffffff',
+      backgroundColor:'#D44942'
+    },
     text_input:{
       flex: 1,
       justifyContent: 'center',

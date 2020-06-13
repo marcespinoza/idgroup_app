@@ -38,7 +38,7 @@ function NotificationsScreen({ navigation }) {
         <TouchableOpacity
            style={{alignItems: "flex-start", margin:16, }}
            onPress={navigation.openDrawer}>
-            <Icon name="bars" size={16}/>
+            <Icon name="bars" size={30}/>
         </TouchableOpacity>
       </SafeAreaView>
     </View>
