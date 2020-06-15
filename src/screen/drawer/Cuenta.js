@@ -1,26 +1,31 @@
 import React from 'react';
-import { Button, View, Text, StyleSheet, } from 'react-native';
+import { View, Text, Button, StyleSheet, StatusBar } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
-const Cuenta = ({navigation}) => {
+const CuentaScreen = ({navigation}) => {
 
-    
-      return (
-        <View style={styles.container}>
-          <Text >Home Screen</Text>
-        <Button
-          title="Go to details screen"
-        />
-        </View>
-      );
-  };
+  const { colors } = useTheme();
+
+  const theme = useTheme();
   
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle= { theme.dark ? "dark-content" : "dark-content" }/>
+        <Text style={{color: colors.text}}>Home Screen</Text>
+      <Button
+        title="Go to details screen"
+        onPress={() => navigation.navigate("Details")}
+      />
+      </View>
+    );
+};
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1, 
-      alignItems: 'center', 
-      justifyContent: 'center'
-    },
-  });
+export default CuentaScreen;
 
-  export default Cuenta;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center'
+  },
+});

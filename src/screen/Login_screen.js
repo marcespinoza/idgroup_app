@@ -70,7 +70,7 @@ export default class Login extends React.Component {
     this.setState({loading:true});
     axios.post(URL, {
     dni: '31897311 ',
-    clave: '12345',
+    clave: '1234',
     headers: {
       'Access-Control-Allow-Origin': '*',
       "Access-Control-Allow-Headers":"X-Requested-With"
