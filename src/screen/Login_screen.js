@@ -87,7 +87,7 @@ export default class Login extends React.Component {
   }.bind(this))
   .catch(function(error) {
     this.setState({loading:false});
-  }.bind(this));
+a  }.bind(this));
 
 }
 }  
