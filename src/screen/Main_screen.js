@@ -15,21 +15,12 @@ function DrawerScreen  () {
   return(
   <Drawer.Navigator
    drawerContent={(props)=> <DrawerContent {...props}/>}
-    initialRouteName="Home"
-    >
+    initialRouteName="Home"    >
     <Drawer.Screen name="Home" component={CuentaScreen}/>
     <Drawer.Screen name="Profile" component={NotificationsScreen} />
   </Drawer.Navigator>
   )
 };  
-
-// const CustomDrawerComponent = (navigation) => (
-  
-//   <SafeAreaView>
-//     <View style={{height:150, backgroundColor:'#323232'}}>
-//     </View>
-//   </SafeAreaView>
-// )
 
 
 function NotificationsScreen({ navigation }) {

@@ -18,7 +18,7 @@ const CuentaScreen = ({navigation}) => {
         }
       }}>
         <CuentaStack.Screen name='Cuenta' component={Cuenta} options={{
-          title:'Cuenta',
+          title:'Estado de Cuenta',
           headerLeft:()=>(
             <Icon name='bars' style={{ marginLeft: 10 }}  size={30} backgroundColor='#ffffff'
             onPress={() => {navigation.openDrawer()}}>

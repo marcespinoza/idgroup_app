@@ -34,8 +34,7 @@ export default class Login extends React.Component {
           visible={this.state.showsnack}
           onDismiss={this._onDismissSnackBar}
           duration={3000}
-          style={styles.snack}
-        >
+          style={styles.snack} >
           Datos incorrectos.
         </Snackbar>
                      <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
@@ -88,7 +87,6 @@ export default class Login extends React.Component {
   }.bind(this))
   .catch(function(error) {
     this.setState({loading:false});
-    alert(error.response.request._response );
   }.bind(this));
 
 }
