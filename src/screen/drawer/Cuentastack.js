@@ -14,7 +14,7 @@ const CuentaScreen = ({navigation}) => {
         },
         headerTintColor:'#323232',
         headerTitleStyle:{
-          fontWeight:'bold'
+          fontWeight:'100'
         }
       }}>
         <CuentaStack.Screen name='Cuenta' component={Cuenta} options={{

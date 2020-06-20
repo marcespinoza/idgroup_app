@@ -37,7 +37,7 @@ export default class Login extends React.Component {
           style={styles.snack} >
           Datos incorrectos.
         </Snackbar>
-                     <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
+          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
            <View style={styles.text_input}>          
              <View style={styles.logoContainer}>
              <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
@@ -51,12 +51,23 @@ export default class Login extends React.Component {
              onChangeText={(value)=>this.setState({contraseña:value,validity:false})}
              value={this.state.contraseña}/>
           </View>
+          </View>
+
+          <View style={{flex: 1,  justifyContent: 'flex-end', marginBottom: 15}}>
           <TouchableOpacity onPress={this.login
             // () => this.props.navigation.navigate('Main')
           } 
               // disabled={(this.state.usuario == '' || this.state.contraseña == '')} 
-              style={this.state.usuario == '' || this.state.contraseña == '' ? styles.button : styles.button }>
+              style={this.state.usuario == '' || this.state.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={
+            //this.login
+            () => this.props.navigation.navigate('Register')
+          } 
+              // disabled={(this.state.usuario == '' || this.state.contraseña == '')} 
+              style={this.state.usuario == '' || this.state.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
+              <Text style={styles.setColorWhite}> REGISTRARME </Text>
           </TouchableOpacity>
           </View>
       </View>
@@ -87,7 +98,7 @@ export default class Login extends React.Component {
   }.bind(this))
   .catch(function(error) {
     this.setState({loading:false});
-a  }.bind(this));
+   }.bind(this));
 
 }
 }  
@@ -105,7 +116,8 @@ a  }.bind(this));
     },
     text_input:{
       flex: 1,
-      justifyContent: 'center',
+      flexDirection:'column',
+      position:'absolute',
     },
     setColorWhite:{
       color:'#ffffff',
@@ -131,11 +143,11 @@ a  }.bind(this));
     imagen:{
       width: 200,
       height:200,
-      top:50,      
+      top:20,      
       resizeMode: 'contain',
       transform: [{ scale: 0.85 }]
     },
-    button: {
+    buttonLogin: {
       alignItems: 'center', 
       justifyContent:'center',
       alignSelf:'center',
@@ -144,9 +156,19 @@ a  }.bind(this));
       backgroundColor:'#323232',
       padding:10,
       borderRadius:25,
-      position: 'absolute',
-      bottom:10
+      bottom:20
    },
+   buttonRegister: {
+    alignItems: 'center', 
+    justifyContent:'center',
+    alignSelf:'center',
+    height: 44,
+    width: WIDTH - 55,
+    backgroundColor:'#323232',
+    padding:10,
+    borderRadius:25,
+    bottom:10
+ },
    buttonDisabled: {
     alignItems: 'center', 
     justifyContent:'center',

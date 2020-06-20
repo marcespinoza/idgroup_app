@@ -31,24 +31,11 @@ export default function DrawerContent(props) {
                     <View style={styles.userInfoSection}>
                         <View style={{flexDirection:'row',marginTop: 15}}>
                             <Avatar.Image 
-                                source={{
-                                    uri: 'https://api.adorable.io/avatars/50/abott@adorable.png'
-                                }}
+                                source={require('../../Images/logo_login.jpg')}
                                 size={50}
                             />
                             <View style={{marginLeft:15, flexDirection:'column'}}>
-                                <Title style={styles.title}>John Doe</Title>
-                            </View>
-                        </View>
-
-                        <View style={styles.row}>
-                            <View style={styles.section}>
-                                <Paragraph style={[styles.paragraph, styles.caption]}>80</Paragraph>
-                                <Caption style={styles.caption}>Following</Caption>
-                            </View>
-                            <View style={styles.section}>
-                                <Paragraph style={[styles.paragraph, styles.caption]}>100</Paragraph>
-                                <Caption style={styles.caption}>Followers</Caption>
+                                <Title style={styles.title}>Marcelo Espinoza</Title>
                             </View>
                         </View>
                     </View>
@@ -62,18 +49,29 @@ export default function DrawerContent(props) {
                                 size={size}
                                 />
                             )}
-                            label="Home"
+                            label="Estado de cuenta"
                             onPress={() => {props.navigation.navigate('Home')}}
                         />
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <Icon 
-                                name="account-outline" 
+                                name="share-variant" 
                                 color={color}
                                 size={size}
                                 />
                             )}
-                            label="Profile"
+                            label="Compartir"
+                            onPress={() => {props.navigation.navigate('Profile')}}
+                        />
+                         <DrawerItem 
+                            icon={({color, size}) => (
+                                <Icon 
+                                name="face-profile" 
+                                color={color}
+                                size={size}
+                                />
+                            )}
+                            label="Mi perfil"
                             onPress={() => {props.navigation.navigate('Profile')}}
                         />
                     </Drawer.Section>

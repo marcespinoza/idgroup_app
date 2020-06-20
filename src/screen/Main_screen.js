@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
 import CuentaScreen from './drawer/Cuentastack.js';
+import RegisterScreen from '../screen/Register_screen.js'
 import DrawerContent from '../screen/DrawerContent.js'
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -18,6 +19,7 @@ function DrawerScreen  () {
     initialRouteName="Home"    >
     <Drawer.Screen name="Home" component={CuentaScreen}/>
     <Drawer.Screen name="Profile" component={NotificationsScreen} />
+    <Drawer.Screen name="Register" component={RegisterScreen} />
   </Drawer.Navigator>
   )
 };  

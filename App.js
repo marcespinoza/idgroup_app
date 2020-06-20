@@ -4,6 +4,7 @@ import {loadAsync} from 'expo-font';
 import * as Font from "expo-font";
 import Login from "./src/screen/Login_screen.js";
 import Main from "./src/screen/Main_screen.js";
+import RegisterScreen from './src/screen/Register_screen.js'
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
@@ -14,6 +15,7 @@ const AppNavigator = createStackNavigator(
   {
   LoginScreen: { screen: Login },
   Main: { screen: Main },
+  Register: {screen: RegisterScreen}
   },
   {
     headerMode: 'none',

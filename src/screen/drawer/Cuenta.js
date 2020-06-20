@@ -16,7 +16,8 @@ const CuentaScreen = ({navigation}) => {
                                marginRight: 5,
                                marginTop: 5,
                                paddingBottom: 10,
-                               borderRadius: 10 }}>
+                               borderBottomRightRadius: 12,
+                               borderBottomLeftRadius:12 }}>
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
@@ -37,23 +38,24 @@ const CuentaScreen = ({navigation}) => {
                 </View>
             </View>
             </View>
-            <View style={{borderTopColor: '#20b1e8',
-                borderTopWidth: 1, marginLeft:20, marginRight:20}}>
-            <Text style={styles.textstyleheader}>
-              VARIACION MENSUAL 
-            </Text>
-            <Text style={styles.textstyle}>
-              % 25
-            </Text>
+            <View style={{borderTopColor: '#20b1e8', borderTopWidth: 1, marginLeft:20, marginRight:20}}>
+            <Text style={styles.textstyleheader}> VARIACION MENSUAL </Text>
+            <Text style={styles.textstyle}> % 25 </Text>
             </View>
             </Card>
-            <Card style={{borderRadius:17, marginLeft:5, marginRight:5, flexDirection:'row'}}>
-              <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/check.png')} />
-              <Text style={{alignSelf:'center'}}>CUOTAS ABONADAS</Text>
+            <Card style={styles.navBar}>
+            <View style={styles.leftContainer}>
+            <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/check.png')} />
+            <Text style={{ alignSelf:'center'}}>CUOTAS ABONADAS</Text>
+             </View>
+              <Text style={{alignSelf:'center', margin:10}}>58</Text>
             </Card>
-            <Card style={{borderRadius:17, marginLeft:5, marginRight:5, flexDirection:'row'}}>
-              <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/close.png')} />
-              <Text style={{alignSelf:'center'}}>CUOTAS ADEUDADAS</Text>
+            <Card style={styles.navBar}>
+            <View style={styles.leftContainer}>
+            <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/close.png')} />
+            <Text style={{ alignSelf:'center'}}>CUOTAS RESTANTES</Text>
+             </View>
+              <Text style={{alignSelf:'center', margin:10}}>58</Text>
             </Card>
       </View>
     );
@@ -91,5 +93,31 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     justifyContent: 'center',
+},
+
+navBar: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  borderRadius:20,
+  marginLeft:5,
+  marginRight:5
+},
+leftContainer: {
+  flex: 1,
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+},
+rightContainer: {
+  flex: 1,
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+},
+rightIcon: {
+  height: 10,
+  width: 10,
+  resizeMode: 'contain',
+  backgroundColor: 'white',
 }
 });

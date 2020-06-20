@@ -21,7 +21,7 @@ const Loader = props => {
       onRequestClose={() => {console.log('close modal')}}>
       <View style={styles.modalBackground}>
         <View style={styles.activityIndicatorWrapper}>
-            <Text>Espere por favor..</Text>
+            <Text>Iniciando sesión..</Text>
           <ActivityIndicator size = "large" color = '#323232'
             animating={loading} />
         </View>
