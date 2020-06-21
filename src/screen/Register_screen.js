@@ -15,7 +15,12 @@ import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-datepicker'
+import moment from 'moment';
+import Icon from 'react-native-vector-icons/FontAwesome'
+
+
+
 
 
 const RegisterScreen = ({navigation}) => {
@@ -27,6 +32,7 @@ const RegisterScreen = ({navigation}) => {
         check_textInputChange: false,
         secureTextEntry: true,
         confirm_secureTextEntry: true,
+        date:"2018-02-02"
     });
 
     const textInputChange = (val) => {
@@ -73,7 +79,14 @@ const RegisterScreen = ({navigation}) => {
         });
     }
 
-    const [date, setDate] = useState(new Date(1598051730000));
+    const [date, setDate] = useState( new Date(
+        Date.parse(
+          moment('02/02/2018', 'DD/MM/YYYY').format(
+            'ddd MMM DD YYYY HH:mm:ss ZZ',
+          ),
+        ),
+      ),);
+
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
 
@@ -91,6 +104,13 @@ const RegisterScreen = ({navigation}) => {
       const showDatepicker = () => {
         setShow(true);
       };
+
+      const selectDate = (val) => {
+        setData({
+            ...data,
+            date: val
+        });
+    }
 
     return (
       <View style={styles.container}>
@@ -175,20 +195,27 @@ const RegisterScreen = ({navigation}) => {
                 : null}
             </View>
             <View style={styles.action}>
-                <FontAwesome 
-                    name="calendar"
-                    color="#05375a"
-                    size={20}
-                />
-                {show && (
-             <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode={mode}
-               is24Hour={true}
-               display="default"
-               onChange={onChange}  />  )}
-                     <TouchableOpacity onPress={showDatepicker} underlayColor="white"></TouchableOpacity>
+                <DatePicker 
+                format="DD-MM-YYYY"
+                placeholder="Fecha de nacimiento"
+                date={data.date}
+                iconSource={require('../../Images/calendar.png')}
+                customStyles={{
+                    dateInput: {
+                        borderLeftWidth: 0,
+                        borderRightWidth: 0,
+                        borderTopWidth: 0,
+                        borderBottomWidth: 0,
+                    },
+                    dateIcon: {
+                        position: 'absolute',
+                        left: 0,
+                        width:22,
+                        height:22,
+                        marginLeft: 0,
+                      },
+                }}
+                onDateChange={selectDate}/>
                 {data.check_textInputChange ? 
                 <Animatable.View
                     animation="bounceIn"
@@ -200,7 +227,7 @@ const RegisterScreen = ({navigation}) => {
                     />
                 </Animatable.View>
                 : null}
-            </View>          
+            </View>       
             <View style={styles.action}>
                 <Feather 
                     name="lock"
@@ -319,13 +346,14 @@ const styles = StyleSheet.create({
         marginBottom:25,
         borderBottomWidth: 1,
         borderBottomColor: '#f2f2f2',
-        paddingBottom: 5
+        paddingBottom: 1
     },
     textInput: {
         flex: 1,
         marginTop: Platform.OS === 'ios' ? 0 : -12,
         paddingLeft: 10,
         color: '#05375a',
+        marginBottom:-10
     },
     button: {
         alignItems: 'center',
