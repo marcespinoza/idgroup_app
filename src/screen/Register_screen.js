@@ -194,7 +194,7 @@ const RegisterScreen = ({navigation}) => {
                 </Animatable.View>
                 : null}
             </View>
-            <View style={styles.action}>
+            <View style={styles.datepicker}>
                 <DatePicker 
                 format="DD-MM-YYYY"
                 placeholder="Fecha de nacimiento"
@@ -206,6 +206,7 @@ const RegisterScreen = ({navigation}) => {
                         borderRightWidth: 0,
                         borderTopWidth: 0,
                         borderBottomWidth: 0,
+                        paddingTop:-20
                     },
                     dateIcon: {
                         position: 'absolute',
@@ -213,6 +214,7 @@ const RegisterScreen = ({navigation}) => {
                         width:22,
                         height:22,
                         marginLeft: 0,
+                        paddingTop:-20
                       },
                 }}
                 onDateChange={selectDate}/>
@@ -347,6 +349,14 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#f2f2f2',
         paddingBottom: 1
+    },
+    datepicker: {
+        flexDirection: 'row',
+        marginBottom:25,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f2f2f2',
+        paddingBottom: -5,
+        marginTop:-16
     },
     textInput: {
         flex: 1,
