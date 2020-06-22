@@ -4,8 +4,6 @@ import {
     Text, 
     Button, 
     TouchableOpacity, 
-    Dimensions,
-    TextInput,
     Platform,
     StyleSheet,
     ScrollView,
@@ -14,10 +12,14 @@ import {
 import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import Feather from 'react-native-vector-icons/Feather';
 import DatePicker from 'react-native-datepicker'
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import { HelperText, TextInput } from 'react-native-paper';
+import { Input } from 'react-native-elements';
 
 
 
@@ -27,15 +29,18 @@ const RegisterScreen = ({navigation}) => {
 
     const [data, setData] = React.useState({
         username: '',
+        lastname: '',
         password: '',
         confirm_password: '',
-        check_textInputChange: false,
+        check_nametextInputChange: false,
+        check_lastnametextInputChange: false,
+        check_idtextInputChange: false,
         secureTextEntry: true,
         confirm_secureTextEntry: true,
-        date:"2018-02-02"
+        date:''
     });
 
-    const textInputChange = (val) => {
+    const nametextInputChange = (val) => {
         if( val.length !== 0 ) {
             setData({
                 ...data,
@@ -47,6 +52,52 @@ const RegisterScreen = ({navigation}) => {
                 ...data,
                 username: val,
                 check_textInputChange: false
+            });
+        }
+    }
+
+    const lastnametextInputChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                lastname: val,
+                check_lastnametextInputChange: true
+            });
+        } else {
+            setData({
+                ...data,
+                lastname: val,
+                check_lastnametextInputChange: false
+            });
+        }
+    }
+
+    const datetextInputChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                date: val,
+            });
+        } else {
+            setData({
+                ...data,
+                date: val,
+            });
+        }
+    }
+
+    const idtextInputChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                idtextInputChange: val,
+                check_idtextInputChange: true
+            });
+        } else {
+            setData({
+                ...data,
+                idtextInputChange: val,
+                check_idtextInputChange: false
             });
         }
     }
@@ -81,29 +132,11 @@ const RegisterScreen = ({navigation}) => {
 
     const [date, setDate] = useState( new Date(
         Date.parse(
-          moment('02/02/2018', 'DD/MM/YYYY').format(
+          moment('02/02/2000', 'DD/MM/YYYY').format(
             'ddd MMM DD YYYY HH:mm:ss ZZ',
           ),
         ),
       ),);
-
-    const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
-
-    const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setShow(Platform.OS === 'ios');
-        setDate(currentDate);
-      };
-
-    const showMode = currentMode => {
-        setShow(true);
-        setMode(currentMode);
-      };
-    
-      const showDatepicker = () => {
-        setShow(true);
-      };
 
       const selectDate = (val) => {
         setData({
@@ -122,82 +155,42 @@ const RegisterScreen = ({navigation}) => {
             animation="fadeInUpBig" delay={800}
             style={styles.footer}   >
             <ScrollView>
-            <View style={styles.action}>
-                <FontAwesome 
-                    name="user-o"
-                    color="#05375a"
-                    size={20}
-                />
-                <TextInput 
-                    placeholder="Nombre/s"
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => textInputChange(val)}
-                />
-                {data.check_textInputChange ? 
-                <Animatable.View
-                    animation="bounceIn"
-                >
-                    <Feather 
-                        name="check-circle"
-                        color="green"
-                        size={20}
-                    />
-                </Animatable.View>
-                : null}
+            <View>
+            <Input
+            placeholder="Nombre"
+             leftIcon={<FontAwesome 
+              name="user-o"
+              color="#05375a"
+              size={20}
+                />}
+            errorMessage='ENTER A VALID ERROR HERE'  />
+        </View>
+            <View >
+            <Input
+            placeholder="Nombre"
+             leftIcon={<FontAwesome 
+              name="user-o"
+              color="#05375a"
+              size={20}
+                />}
+            errorMessage='ENTER A VALID ERROR HERE'  />
             </View>
-            <View style={styles.action}>
-                <FontAwesome 
-                    name="user-o"
-                    color="#05375a"
-                    size={20}
-                />
-                <TextInput 
-                    placeholder="Apellido/s"
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => textInputChange(val)}
-                />
-                {data.check_textInputChange ? 
-                <Animatable.View
-                    animation="bounceIn"
-                >
-                    <Feather 
-                        name="check-circle"
-                        color="green"
-                        size={20}
-                    />
-                </Animatable.View>
-                : null}
-            </View>
-            <View style={styles.action}>
-                <FontAwesome 
-                    name="id-card-o"
-                    color="#05375a"
-                    size={20}
-                />
-                <TextInput 
-                    placeholder="Documento"
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => textInputChange(val)}
-                />
-                {data.check_textInputChange ? 
-                <Animatable.View
-                    animation="bounceIn"
-                >
-                    <Feather 
-                        name="check-circle"
-                        color="green"
-                        size={20}
-                    />
-                </Animatable.View>
-                : null}
+            <View >
+            <Input
+            placeholder="Nombre"
+             leftIcon={<FontAwesome 
+              name="id-card-o"
+              color="#05375a"
+              size={20}
+                />}
+            errorMessage='ENTER A VALID ERROR HERE'  />
             </View>
             <View style={styles.datepicker}>
                 <DatePicker 
                 format="DD-MM-YYYY"
                 placeholder="Fecha de nacimiento"
+                maxDate="2010-01-01"
+                placeholder="Seleccionar"
                 date={data.date}
                 iconSource={require('../../Images/calendar.png')}
                 customStyles={{
@@ -218,80 +211,23 @@ const RegisterScreen = ({navigation}) => {
                       },
                 }}
                 onDateChange={selectDate}/>
-                {data.check_textInputChange ? 
-                <Animatable.View
-                    animation="bounceIn"
-                >
-                    <Feather 
-                        name="check-circle"
-                        color="green"
-                        size={20}
-                    />
-                </Animatable.View>
-                : null}
             </View>       
             <View style={styles.action}>
-                <Feather 
-                    name="lock"
-                    color="#05375a"
-                    size={20}
-                />
-                <TextInput 
-                    placeholder="Contraseña"
-                    secureTextEntry={data.secureTextEntry ? true : false}
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => handlePasswordChange(val)}
-                />
-                <TouchableOpacity
-                    onPress={updateSecureTextEntry}
-                >
-                    {data.secureTextEntry ? 
-                    <Feather 
-                        name="eye-off"
-                        color="grey"
-                        size={20}
-                    />
-                    :
-                    <Feather 
-                        name="eye"
-                        color="grey"
-                        size={20}
-                    />
-                    }
-                </TouchableOpacity>
+            <Input
+            placeholder="Contraseña"
+             leftIcon={<MaterialCommunityIcons 
+                name="lock-open-variant-outline"
+              color="#05375a"
+              size={20}
+                />}
+            errorMessage='ENTER A VALID ERROR HERE'  />
             </View>
 
             <View style={styles.action}>
-                <Feather 
-                    name="lock"
-                    color="#05375a"
-                    size={20}
-                />
-                <TextInput 
-                    placeholder="Confirme su contraseña"
-                    secureTextEntry={data.confirm_secureTextEntry ? true : false}
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => handleConfirmPasswordChange(val)}
-                />
-                <TouchableOpacity
-                    onPress={updateConfirmSecureTextEntry}
-                >
-                    {data.secureTextEntry ? 
-                    <Feather 
-                        name="eye-off"
-                        color="grey"
-                        size={20}
-                    />
-                    :
-                    <Feather 
-                        name="eye"
-                        color="grey"
-                        size={20}
-                    />
-                    }
-                </TouchableOpacity>
+            <Input
+            placeholder="Confirme contraseña"
+             leftIcon={{ type: 'material-community', name: 'lock-open-variant-outline' }}
+            errorMessage='ENTER A VALID ERROR HERE'  />
             </View>
             <View style={styles.button}>
                 <TouchableOpacity
@@ -344,10 +280,21 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     action: {
+        borderBottomColor: '#F5FCFF',
+        backgroundColor: '#FFFFFF',
+        borderRadius:30,
+        borderBottomWidth: 1,
+        width:250,
+        height:40,
+        marginBottom:20,
+        flexDirection: 'row',
+        alignItems:'center'
+    },
+    actionerror: {
         flexDirection: 'row',
         marginBottom:25,
         borderBottomWidth: 1,
-        borderBottomColor: '#f2f2f2',
+        borderBottomColor: '#ff0000',
         paddingBottom: 1
     },
     datepicker: {
