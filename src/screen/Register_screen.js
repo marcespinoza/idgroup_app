@@ -20,9 +20,8 @@ import moment from 'moment';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { HelperText, TextInput } from 'react-native-paper';
 import { Input } from 'react-native-elements';
-
-
-
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 
 
 const RegisterScreen = ({navigation}) => {
@@ -37,21 +36,47 @@ const RegisterScreen = ({navigation}) => {
         check_idtextInputChange: false,
         secureTextEntry: true,
         confirm_secureTextEntry: true,
-        date:''
+        date:'',
+        NameErrorMessage:'',
+        LastNameErrorMessage:'',
+        IdErrorMessage:'',
+        PassErrorMessage:'',
+        ConfirmPassErrorMessage:'',
+        showDropDown: false
     });
+
+    const items = [
+        // this is the parent or 'item'
+        {
+          name: 'Intereses',
+          id: 0,
+          // these are the children or 'sub items'
+          children: [
+            {
+              name: 'Educación',
+              id: 10,
+            },
+            {
+              name: 'Tecnologia',
+              id: 17,
+            },
+          ],
+        },
+      
+      ];
 
     const nametextInputChange = (val) => {
         if( val.length !== 0 ) {
             setData({
                 ...data,
                 username: val,
-                check_textInputChange: true
+                NameErrorMessage:''
             });
         } else {
             setData({
                 ...data,
                 username: val,
-                check_textInputChange: false
+                NameErrorMessage:'Este campo es obligatorio'
             });
         }
     }
@@ -61,13 +86,13 @@ const RegisterScreen = ({navigation}) => {
             setData({
                 ...data,
                 lastname: val,
-                check_lastnametextInputChange: true
+                LastNameErrorMessage: ''
             });
         } else {
             setData({
                 ...data,
                 lastname: val,
-                check_lastnametextInputChange: false
+                LastNameErrorMessage: 'Este campo es obligatorio'
             });
         }
     }
@@ -91,13 +116,13 @@ const RegisterScreen = ({navigation}) => {
             setData({
                 ...data,
                 idtextInputChange: val,
-                check_idtextInputChange: true
+                IdErrorMessage:''
             });
         } else {
             setData({
                 ...data,
                 idtextInputChange: val,
-                check_idtextInputChange: false
+                IdErrorMessage:'Este campo es obligatorio'
             });
         }
     }
@@ -130,20 +155,23 @@ const RegisterScreen = ({navigation}) => {
         });
     }
 
-    const [date, setDate] = useState( new Date(
-        Date.parse(
-          moment('02/02/2000', 'DD/MM/YYYY').format(
-            'ddd MMM DD YYYY HH:mm:ss ZZ',
-          ),
-        ),
-      ),);
 
-      const selectDate = (val) => {
-        setData({
-            ...data,
-            date: val
-        });
-    }
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [nacimiento, setNacimiento] = useState('2222-22-22');
+
+
+    const showDatePicker = () => {
+      setDatePickerVisibility(true);
+    };
+  
+    const hideDatePicker = () => {
+      setDatePickerVisibility(false);
+    };
+  
+    const handleConfirm = (date) => {
+      setNacimiento(moment(date, 'MMMM Do YYYY, h:mm:ss a').format('DD-MM-YYYY'))
+      hideDatePicker();
+    };
 
     return (
       <View style={styles.container}>
@@ -157,62 +185,113 @@ const RegisterScreen = ({navigation}) => {
             <ScrollView>
             <View>
             <Input
-            placeholder="Nombre"
-             leftIcon={<FontAwesome 
-              name="user-o"
+            placeholder="Nombre/s"
+             leftIcon={<MaterialCommunityIcons 
+                name="account-circle-outline"
               color="#05375a"
-              size={20}
+              size={22}
                 />}
-            errorMessage='ENTER A VALID ERROR HERE'  />
+            errorMessage={data.NameErrorMessage}
+            onChangeText={value => nametextInputChange(value)}  />
         </View>
             <View >
             <Input
-            placeholder="Nombre"
-             leftIcon={<FontAwesome 
-              name="user-o"
+            placeholder="Apellido/s"
+             leftIcon={<MaterialCommunityIcons 
+                name="account-circle-outline"
               color="#05375a"
-              size={20}
+              size={22}
                 />}
-            errorMessage='ENTER A VALID ERROR HERE'  />
+            errorMessage={data.LastNameErrorMessage} 
+            onChangeText={value => lastnametextInputChange(value)} 
+             />
             </View>
             <View >
             <Input
-            placeholder="Nombre"
-             leftIcon={<FontAwesome 
-              name="id-card-o"
+            placeholder="Correo"
+             leftIcon={<MaterialCommunityIcons 
+                name="email-outline"
               color="#05375a"
-              size={20}
+              size={22}
                 />}
-            errorMessage='ENTER A VALID ERROR HERE'  />
+            errorMessage={data.LastNameErrorMessage} 
+            onChangeText={value => lastnametextInputChange(value)} 
+             />
             </View>
-            <View style={styles.datepicker}>
-                <DatePicker 
-                format="DD-MM-YYYY"
-                placeholder="Fecha de nacimiento"
-                maxDate="2010-01-01"
-                placeholder="Seleccionar"
-                date={data.date}
-                iconSource={require('../../Images/calendar.png')}
-                customStyles={{
-                    dateInput: {
-                        borderLeftWidth: 0,
-                        borderRightWidth: 0,
-                        borderTopWidth: 0,
-                        borderBottomWidth: 0,
-                        paddingTop:-20
-                    },
-                    dateIcon: {
-                        position: 'absolute',
-                        left: 0,
-                        width:22,
-                        height:22,
-                        marginLeft: 0,
-                        paddingTop:-20
-                      },
-                }}
-                onDateChange={selectDate}/>
-            </View>       
-            <View style={styles.action}>
+            <View >
+            <Input
+            placeholder="Ocupación"
+             leftIcon={<MaterialCommunityIcons 
+                name="wallet-travel"
+              color="#05375a"
+              size={22}
+                />}
+            errorMessage={data.LastNameErrorMessage} 
+            onChangeText={value => lastnametextInputChange(value)} 
+             />
+            </View>
+            <TouchableOpacity >
+            <View >
+            <Input
+            placeholder="Interés"
+             leftIcon={<MaterialCommunityIcons 
+                name="wallet-travel"
+              color="#05375a"
+              size={22}
+                />}
+            errorMessage={data.LastNameErrorMessage} 
+            onChangeText={value => lastnametextInputChange(value)} />
+            <SectionedMultiSelect
+              items={items}
+              uniqueKey="id"
+              subKey="children"
+              selectText="Intereses"
+              single="true"
+              showDropDowns={false}
+              readOnlyHeadings={true}
+            //   onSelectedItemsChange={this.onSelectedItemsChange}
+            //   selectedItems={this.state.selectedItems}
+        />
+            </View>
+            </TouchableOpacity>
+            <View >
+            <Input
+            placeholder="Documento"
+            keyboardType='numeric'
+             leftIcon={<MaterialCommunityIcons 
+                name="card-bulleted-outline"
+              color="#05375a"
+              size={22}
+                />}
+            errorMessage=''
+            onChangeText={value => idtextInputChange(value)}   />
+            </View>
+            <TouchableOpacity onPress={showDatePicker}>
+
+            <View >
+            
+            <Input
+            placeholder="Fecha de nacimiento"
+            disabled="true"
+            value={nacimiento}
+
+             leftIcon={<MaterialCommunityIcons 
+                name="calendar-month-outline"
+              color="#05375a"
+              size={22}
+                />}
+            errorMessage=''  />
+            <DateTimePickerModal
+             isVisible={isDatePickerVisible}
+             mode="date"
+             placeholder='fecha'
+             onConfirm={handleConfirm}
+              onCancel={hideDatePicker}
+              onHide={hideDatePicker}
+             />
+            </View>
+            </TouchableOpacity>      
+            <View >
             <Input
             placeholder="Contraseña"
              leftIcon={<MaterialCommunityIcons 
@@ -220,14 +299,18 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={20}
                 />}
-            errorMessage='ENTER A VALID ERROR HERE'  />
+            errorMessage={data.PassErrorMessage}  />
             </View>
 
-            <View style={styles.action}>
+            <View >
             <Input
             placeholder="Confirme contraseña"
-             leftIcon={{ type: 'material-community', name: 'lock-open-variant-outline' }}
-            errorMessage='ENTER A VALID ERROR HERE'  />
+             leftIcon={<MaterialCommunityIcons 
+                name="lock-open-variant-outline"
+              color="#05375a"
+              size={20}
+                />}
+            errorMessage={data.ConfirmPassErrorMessage}  />
             </View>
             <View style={styles.button}>
                 <TouchableOpacity
