@@ -1,4 +1,4 @@
-import React ,{useState}from 'react';
+import React ,{useState, useEffect}from 'react';
 import { 
     View, 
     Text, 
@@ -22,6 +22,8 @@ import { HelperText, TextInput } from 'react-native-paper';
 import { Input } from 'react-native-elements';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import { TextInputMask } from 'react-native-masked-text'
+import LabelSelect from '../utils/LabelSelect';
 
 
 const RegisterScreen = ({navigation}) => {
@@ -45,25 +47,23 @@ const RegisterScreen = ({navigation}) => {
         showDropDown: false
     });
 
-    const items = [
-        // this is the parent or 'item'
-        {
-          name: 'Intereses',
-          id: 0,
-          // these are the children or 'sub items'
-          children: [
-            {
-              name: 'Educación',
-              id: 10,
-            },
-            {
-              name: 'Tecnologia',
-              id: 17,
-            },
-          ],
-        },
-      
-      ];
+   const opciones = [{
+        name: 'Aspirin',
+        isSelected: false,
+        value: 1
+      }, {
+        name: 'MarginTop',
+        isSelected: true,
+        value: 2
+      }, {
+        name: 'Dooper',
+        isSelected: false,
+        value: 3
+      }, {
+        name: 'Young Skywalker',
+        isSelected: false,
+        value: 4
+      }];
 
     const nametextInputChange = (val) => {
         if( val.length !== 0 ) {
@@ -155,10 +155,15 @@ const RegisterScreen = ({navigation}) => {
         });
     }
 
+    
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [nacimiento, setNacimiento] = useState('2222-22-22');
-
+    const [nacimiento, setNacimiento] = useState('');
+    const [items, setInteres] = useState([]);
+    useEffect(() => {
+        // Should not ever set state during rendering, so do this in useEffect instead.
+        setInteres(opciones);
+      }, []);
 
     const showDatePicker = () => {
       setDatePickerVisibility(true);
@@ -173,6 +178,30 @@ const RegisterScreen = ({navigation}) => {
       hideDatePicker();
     };
 
+      const  onSelectedItemsChange = (selectedItems) => {
+            console.log(selectedItems, selectedItems.length)
+            setInteres(selectedItems.length)
+          }
+
+         const selectConfirm=(list)=> {
+            let items2 = [...items];
+            for (let item of list) {
+              let index = items2.findIndex(ele => ele === item);
+              if (~index) items2[index].isSelected = true;
+              else continue;
+            }
+            setInteres(items2)
+          }
+
+         const deleteItem=(item)=> {
+            let items2 =[...items];
+            console.log(item);
+            let index = items2.findIndex(a => a === item);
+            items2[index].isSelected = false;
+            setInteres(items2);
+            console.log(items2);
+          }
+
     return (
       <View style={styles.container}>
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
@@ -183,6 +212,7 @@ const RegisterScreen = ({navigation}) => {
             animation="fadeInUpBig" delay={800}
             style={styles.footer}   >
             <ScrollView>
+                
             <View>
             <Input
             placeholder="Nombre/s"
@@ -191,6 +221,7 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={22}
                 />}
+             inputContainerStyle={{ borderColor: '#EAEAEA' }}
             errorMessage={data.NameErrorMessage}
             onChangeText={value => nametextInputChange(value)}  />
         </View>
@@ -230,30 +261,6 @@ const RegisterScreen = ({navigation}) => {
             onChangeText={value => lastnametextInputChange(value)} 
              />
             </View>
-            <TouchableOpacity >
-            <View >
-            <Input
-            placeholder="Interés"
-             leftIcon={<MaterialCommunityIcons 
-                name="wallet-travel"
-              color="#05375a"
-              size={22}
-                />}
-            errorMessage={data.LastNameErrorMessage} 
-            onChangeText={value => lastnametextInputChange(value)} />
-            <SectionedMultiSelect
-              items={items}
-              uniqueKey="id"
-              subKey="children"
-              selectText="Intereses"
-              single="true"
-              showDropDowns={false}
-              readOnlyHeadings={true}
-            //   onSelectedItemsChange={this.onSelectedItemsChange}
-            //   selectedItems={this.state.selectedItems}
-        />
-            </View>
-            </TouchableOpacity>
             <View >
             <Input
             placeholder="Documento"
@@ -266,31 +273,43 @@ const RegisterScreen = ({navigation}) => {
             errorMessage=''
             onChangeText={value => idtextInputChange(value)}   />
             </View>
-            <TouchableOpacity onPress={showDatePicker}>
+            <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
+            {/* <Icon name="lock" size={25} color="#000000" style={{marginTop:4}}/> */}
+            <Text>FECHA DE NACIMIENTO</Text>
+            <TextInputMask
+               style={{width: '30%',height: 40,backgroundColor: 'white',justifyContent: 'center', borderBottomWidth: 2,
+               borderColor: '#EAEAEA', marginLeft:10 }}
+                type={'datetime'}
+                placeholder='DD/MM/YYYY'
+                options={{
+                    format: 'DD/MM/YYYY'
+                  }}
+                value={nacimiento}
+                onChangeText={text => { setNacimiento(text)}}  />
 
-            <View >
-            
-            <Input
-            placeholder="Fecha de nacimiento"
-            disabled="true"
-            value={nacimiento}
-
-             leftIcon={<MaterialCommunityIcons 
-                name="calendar-month-outline"
-              color="#05375a"
-              size={22}
-                />}
-            errorMessage=''  />
-            <DateTimePickerModal
-             isVisible={isDatePickerVisible}
-             mode="date"
-             placeholder='fecha'
-             onConfirm={handleConfirm}
-              onCancel={hideDatePicker}
-              onHide={hideDatePicker}
-             />
             </View>
-            </TouchableOpacity>      
+            <View>
+                <Text>Intereses</Text>
+                <LabelSelect
+                title="Intereses"
+                onConfirm={selectConfirm}>
+
+                {items.filter(item => item.isSelected).map((item, index) =>
+            <LabelSelect.Label
+              key={'label-' + index}
+              data={item}
+              onCancel={() => {deleteItem(item);}}>
+                  {item.name}
+            </LabelSelect.Label>)}
+
+            {items.filter(item => !item.isSelected).map((item, index) =>
+            <LabelSelect.ModalItem
+              key={'modal-item-' + index}
+              data={item}
+            >{item.name}</LabelSelect.ModalItem>
+          )}
+        </LabelSelect>
+                </View>
             <View >
             <Input
             placeholder="Contraseña"
