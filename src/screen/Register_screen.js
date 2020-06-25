@@ -13,7 +13,7 @@ import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import axios from 'axios';
 import Feather from 'react-native-vector-icons/Feather';
 import DatePicker from 'react-native-datepicker'
 import moment from 'moment';
@@ -24,43 +24,47 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import { TextInputMask } from 'react-native-masked-text'
 import LabelSelect from '../utils/LabelSelect';
+import Loader from '../utils/Loader.js'
 
 
 const RegisterScreen = ({navigation}) => {
 
     const [data, setData] = React.useState({
-        username: '',
-        lastname: '',
-        password: '',
-        confirm_password: '',
+        nombre: '',
+        apellido: '',
+        documento: '',
+        correo:'',
+        fecha_nacimiento: '',
+        interes:'',
+        contraseña:'',
+        confirma_contraseña:'',
         check_nametextInputChange: false,
         check_lastnametextInputChange: false,
         check_idtextInputChange: false,
         secureTextEntry: true,
-        confirm_secureTextEntry: true,
-        date:'',
         NameErrorMessage:'',
         LastNameErrorMessage:'',
         IdErrorMessage:'',
         PassErrorMessage:'',
         ConfirmPassErrorMessage:'',
-        showDropDown: false
+        showDropDown: false,
+        loading: false
     });
 
    const opciones = [{
-        name: 'Aspirin',
+        name: 'Educación',
         isSelected: false,
         value: 1
       }, {
-        name: 'MarginTop',
-        isSelected: true,
+        name: 'Deportes',
+        isSelected: false,
         value: 2
       }, {
-        name: 'Dooper',
+        name: 'Tecnologia',
         isSelected: false,
         value: 3
       }, {
-        name: 'Young Skywalker',
+        name: 'Politica',
         isSelected: false,
         value: 4
       }];
@@ -69,13 +73,13 @@ const RegisterScreen = ({navigation}) => {
         if( val.length !== 0 ) {
             setData({
                 ...data,
-                username: val,
+                nombre: val,
                 NameErrorMessage:''
             });
         } else {
             setData({
                 ...data,
-                username: val,
+                nombre: val,
                 NameErrorMessage:'Este campo es obligatorio'
             });
         }
@@ -85,28 +89,30 @@ const RegisterScreen = ({navigation}) => {
         if( val.length !== 0 ) {
             setData({
                 ...data,
-                lastname: val,
+                apellido: val,
                 LastNameErrorMessage: ''
             });
         } else {
             setData({
                 ...data,
-                lastname: val,
+                apellido: val,
                 LastNameErrorMessage: 'Este campo es obligatorio'
             });
         }
     }
 
-    const datetextInputChange = (val) => {
+
+
+    const ocupaciontextInputChange = (val) => {
         if( val.length !== 0 ) {
             setData({
                 ...data,
-                date: val,
+                ocupacion: val,
             });
         } else {
             setData({
                 ...data,
-                date: val,
+                ocupacion: val,
             });
         }
     }
@@ -115,49 +121,111 @@ const RegisterScreen = ({navigation}) => {
         if( val.length !== 0 ) {
             setData({
                 ...data,
-                idtextInputChange: val,
+                documento: val,
                 IdErrorMessage:''
             });
         } else {
             setData({
                 ...data,
-                idtextInputChange: val,
+                documento: val,
                 IdErrorMessage:'Este campo es obligatorio'
             });
         }
     }
 
-    const handlePasswordChange = (val) => {
-        setData({
-            ...data,
-            password: val
-        });
+    const mailtextInputChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                correo: val,
+                IdErrorMessage:''
+            });
+        } else {
+            setData({
+                ...data,
+                correo: val,
+                IdErrorMessage:'Este campo es obligatorio'
+            });
+        }
     }
 
-    const handleConfirmPasswordChange = (val) => {
-        setData({
-            ...data,
-            confirm_password: val
-        });
+    const passwordtextInputChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                contraseña: val,
+                PassErrorMessage:''
+            });
+        } else {
+            setData({
+                ...data,
+                contraseña: val,
+                PassErrorMessage:'Este campo es obligatorio'
+            });
+        }
     }
 
-    const updateSecureTextEntry = () => {
-        setData({
-            ...data,
-            secureTextEntry: !data.secureTextEntry
-        });
+    const confirmPasswordtextInputChange = (val) => {
+        console.log(val)
+        if( val.length == 0 ) {
+            setData({
+                ...data,
+                confirma_contraseña: val,
+                ConfirmPassErrorMessage:'Este campo es obligatorio'
+            });
+        }else if(val.length !== 0  && data.contraseña !== val){
+            setData({
+                ...data,
+                confirma_contraseña: val,
+                ConfirmPassErrorMessage:'Las contraseñas deben coincidir'
+            });
+        } else {
+            setData({
+                ...data,
+                confirma_contraseña: val,
+                ConfirmPassErrorMessage:'Deben coincidir'
+            });
+        }
     }
 
-    const updateConfirmSecureTextEntry = () => {
+
+   const registro = async =>{
+        const URL = 'http://admidgroup.com/api_rest/index.php/api/cliente';
         setData({
             ...data,
-            confirm_secureTextEntry: !data.confirm_secureTextEntry
+            loading:true
         });
-    }
-
+        axios.post(URL, {
+        nombre: data.nombre,
+        apellido: data.apellido,
+        correo: data.correo,
+        ocupacion: data.ocupacion,
+        documento: data.documento,
+        fecha_nacimiento: data.nacimiento,
+        interes: data.interes,
+        contraseña: data.contraseña,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Headers":"X-Requested-With"
+        },
+      })
+      .then(function(response) {
+        // handle success
+        let resp = response.data;
+        setData({
+            ...data,
+            loading:false
+        });
+      }.bind(this))
+      .catch(function(error) {
+        setData({
+            ...data,
+            loading:false
+        });
+       }.bind(this));
     
+    }
 
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [nacimiento, setNacimiento] = useState('');
     const [items, setInteres] = useState([]);
     useEffect(() => {
@@ -195,32 +263,29 @@ const RegisterScreen = ({navigation}) => {
 
          const deleteItem=(item)=> {
             let items2 =[...items];
-            console.log(item);
             let index = items2.findIndex(a => a === item);
             items2[index].isSelected = false;
             setInteres(items2);
-            console.log(items2);
           }
 
     return (
       <View style={styles.container}>
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
+          <Loader  loading={data.loading} />
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
         </View>
         <Animatable.View 
             animation="fadeInUpBig" delay={800}
             style={styles.footer}   >
-            <ScrollView>
-                
+            <ScrollView>                
             <View>
             <Input
             placeholder="Nombre/s"
              leftIcon={<MaterialCommunityIcons 
-                name="account-circle-outline"
-              color="#05375a"
-              size={22}
-                />}
+             name="account-circle-outline"
+             color="#05375a"
+             size={22}/>}
              inputContainerStyle={{ borderColor: '#EAEAEA' }}
             errorMessage={data.NameErrorMessage}
             onChangeText={value => nametextInputChange(value)}  />
@@ -233,6 +298,7 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={22}
                 />}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
             errorMessage={data.LastNameErrorMessage} 
             onChangeText={value => lastnametextInputChange(value)} 
              />
@@ -245,8 +311,9 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={22}
                 />}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
             errorMessage={data.LastNameErrorMessage} 
-            onChangeText={value => lastnametextInputChange(value)} 
+            onChangeText={value => mailtextInputChange(value)} 
              />
             </View>
             <View >
@@ -257,8 +324,9 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={22}
                 />}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
             errorMessage={data.LastNameErrorMessage} 
-            onChangeText={value => lastnametextInputChange(value)} 
+            onChangeText={value => ocupaciontextInputChange(value)} 
              />
             </View>
             <View >
@@ -271,14 +339,14 @@ const RegisterScreen = ({navigation}) => {
               size={22}
                 />}
             errorMessage=''
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
             onChangeText={value => idtextInputChange(value)}   />
             </View>
             <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
             {/* <Icon name="lock" size={25} color="#000000" style={{marginTop:4}}/> */}
-            <Text>FECHA DE NACIMIENTO</Text>
+            <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Fecha de nacimiento</Text>
             <TextInputMask
-               style={{width: '30%',height: 40,backgroundColor: 'white',justifyContent: 'center', borderBottomWidth: 2,
-               borderColor: '#EAEAEA', marginLeft:10 }}
+               style={{width: '35%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                 type={'datetime'}
                 placeholder='DD/MM/YYYY'
                 options={{
@@ -288,10 +356,11 @@ const RegisterScreen = ({navigation}) => {
                 onChangeText={text => { setNacimiento(text)}}  />
 
             </View>
-            <View>
-                <Text>Intereses</Text>
+            <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10, paddingBottom:15}}/>
+            <View style={{marginLeft:12}}>
+                <Text style={{fontSize:17, fontFamily:'roboto-light',color:'#AAAAAA'}}>Intereses</Text>
                 <LabelSelect
-                title="Intereses"
+                title="INTERESES"
                 onConfirm={selectConfirm}>
 
                 {items.filter(item => item.isSelected).map((item, index) =>
@@ -309,7 +378,8 @@ const RegisterScreen = ({navigation}) => {
             >{item.name}</LabelSelect.ModalItem>
           )}
         </LabelSelect>
-                </View>
+            </View>
+            <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10, paddingBottom:10}}/>
             <View >
             <Input
             placeholder="Contraseña"
@@ -318,7 +388,9 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={20}
                 />}
-            errorMessage={data.PassErrorMessage}  />
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
+            errorMessage={data.PassErrorMessage} 
+            onChangeText={val => { passwordtextInputChange(val)}}   />
             </View>
 
             <View >
@@ -329,12 +401,14 @@ const RegisterScreen = ({navigation}) => {
               color="#05375a"
               size={20}
                 />}
-            errorMessage={data.ConfirmPassErrorMessage}  />
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}    
+            errorMessage={data.ConfirmPassErrorMessage} 
+            onChangeText={value => confirmPasswordtextInputChange(value)}  />
             </View>
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}
-                    onPress={() => {}}  >
+                    onPress={registro}  >
                  <LinearGradient
                     colors={['#323232', '#4a4949']}
                     style={styles.signIn}
@@ -350,6 +424,8 @@ const RegisterScreen = ({navigation}) => {
       </View>
     );
 };
+
+
 
 export default RegisterScreen;
 

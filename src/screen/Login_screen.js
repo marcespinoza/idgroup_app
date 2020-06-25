@@ -75,7 +75,7 @@ export default class Login extends React.Component {
   }
 
   login = async =>{
-    const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+    // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
     const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
     this.setState({loading:true});
     axios.post(URL, {

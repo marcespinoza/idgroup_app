@@ -4,7 +4,7 @@ const {width, height, scale} = window;
 
 export const Color = {
   disableColor: '#eaeaea',
-  main: '#40cca2'
+  main: '#20b1e8'
 };
 
 export const IMG = {

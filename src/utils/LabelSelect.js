@@ -31,8 +31,8 @@ class LabelSelect extends Component {
     readOnly: false,
     onConfirm: () => {},
     enableAddBtn: true,
-    confirmText: 'Confirm',
-    cancelText: 'Cancel'
+    confirmText: 'Confirmar',
+    cancelText: 'Cancelar'
   }
   constructor(props) {
     super(props);
