@@ -34,7 +34,6 @@ const RegisterScreen = ({navigation}) => {
         apellido: '',
         documento: '',
         correo:'',
-        fecha_nacimiento: '',
         interes:'',
         contraseña:'',
         confirma_contraseña:'',
@@ -150,23 +149,29 @@ const RegisterScreen = ({navigation}) => {
     }
 
     const passwordtextInputChange = (val) => {
-        if( val.length !== 0 ) {
-            setData({
-                ...data,
-                contraseña: val,
-                PassErrorMessage:''
-            });
-        } else {
+        if( val.length == 0 ) {
             setData({
                 ...data,
                 contraseña: val,
                 PassErrorMessage:'Este campo es obligatorio'
             });
+        }else if(val.length !== 0  && data.confirma_contraseña !== val){
+            setData({
+                ...data,
+                contraseña: val,
+                PassErrorMessage:'Las contraseñas deben coincidir'
+            });
+        } else {
+            setData({
+                ...data,
+                contraseña: val,
+                PassErrorMessage:'',
+                ConfirmPassErrorMessage:''
+            });
         }
     }
 
     const confirmPasswordtextInputChange = (val) => {
-        console.log(val)
         if( val.length == 0 ) {
             setData({
                 ...data,
@@ -183,7 +188,8 @@ const RegisterScreen = ({navigation}) => {
             setData({
                 ...data,
                 confirma_contraseña: val,
-                ConfirmPassErrorMessage:'Deben coincidir'
+                ConfirmPassErrorMessage:'',
+                PassErrorMessage:''
             });
         }
     }
@@ -203,7 +209,7 @@ const RegisterScreen = ({navigation}) => {
         documento: data.documento,
         fecha_nacimiento: data.nacimiento,
         interes: data.interes,
-        contraseña: data.contraseña,
+        clave: data.contraseña,
         headers: {
           'Access-Control-Allow-Origin': '*',
           "Access-Control-Allow-Headers":"X-Requested-With"
@@ -245,11 +251,6 @@ const RegisterScreen = ({navigation}) => {
       setNacimiento(moment(date, 'MMMM Do YYYY, h:mm:ss a').format('DD-MM-YYYY'))
       hideDatePicker();
     };
-
-      const  onSelectedItemsChange = (selectedItems) => {
-            console.log(selectedItems, selectedItems.length)
-            setInteres(selectedItems.length)
-          }
 
          const selectConfirm=(list)=> {
             let items2 = [...items];
@@ -346,7 +347,7 @@ const RegisterScreen = ({navigation}) => {
             {/* <Icon name="lock" size={25} color="#000000" style={{marginTop:4}}/> */}
             <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Fecha de nacimiento</Text>
             <TextInputMask
-               style={{width: '35%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
+               style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                 type={'datetime'}
                 placeholder='DD/MM/YYYY'
                 options={{
