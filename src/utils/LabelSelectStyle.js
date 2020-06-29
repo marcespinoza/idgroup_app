@@ -91,8 +91,8 @@ export default StyleSheet.create({
   modalButton: {
     height: 40,
     width: width * 0.3,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 15,
+    paddingRight: 15,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Color.main

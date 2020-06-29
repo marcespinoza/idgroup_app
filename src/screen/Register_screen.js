@@ -14,17 +14,12 @@ import {LinearGradient} from 'expo-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import Feather from 'react-native-vector-icons/Feather';
-import DatePicker from 'react-native-datepicker'
 import moment from 'moment';
-import Icon from 'react-native-vector-icons/FontAwesome'
-import { HelperText, TextInput } from 'react-native-paper';
 import { Input } from 'react-native-elements';
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import { TextInputMask } from 'react-native-masked-text'
 import LabelSelect from '../utils/LabelSelect';
 import Loader from '../utils/Loader.js'
+
 
 
 const RegisterScreen = ({navigation}) => {
@@ -207,13 +202,9 @@ const RegisterScreen = ({navigation}) => {
         correo: data.correo,
         ocupacion: data.ocupacion,
         documento: data.documento,
-        fecha_nacimiento: data.nacimiento,
-        interes: data.interes,
+        fecha_nacimiento: moment(nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+        interes: 'data.interes',
         clave: data.contraseña,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          "Access-Control-Allow-Headers":"X-Requested-With"
-        },
       })
       .then(function(response) {
         // handle success
@@ -222,12 +213,14 @@ const RegisterScreen = ({navigation}) => {
             ...data,
             loading:false
         });
+        console.log(response)
       }.bind(this))
       .catch(function(error) {
         setData({
             ...data,
             loading:false
         });
+        console.log(JSON.stringify(error));
        }.bind(this));
     
     }
@@ -272,7 +265,7 @@ const RegisterScreen = ({navigation}) => {
     return (
       <View style={styles.container}>
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
-          <Loader  loading={data.loading} />
+          <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
         </View>
@@ -349,9 +342,9 @@ const RegisterScreen = ({navigation}) => {
             <TextInputMask
                style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                 type={'datetime'}
-                placeholder='DD/MM/YYYY'
+                placeholder='DD-MM-YYYY'
                 options={{
-                    format: 'DD/MM/YYYY'
+                    format: 'DD-MM-YYYY'
                   }}
                 value={nacimiento}
                 onChangeText={text => { setNacimiento(text)}}  />
