@@ -11,7 +11,7 @@ export default class CustomFont extends Component {
     _loadFontsAsync = async () => {
       await Font.loadAsync({
         // add as many fonts as you want here .... 
-        'roboto-medium': require('./assets/fonts/Roboto-Italic.ttf'),
+        'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf'),
         'roboto-light': require('./assets/fonts/Roboto-Light.ttf'),
         'roboto-thin': require('./assets/fonts/Roboto-Thin.ttf')
       });

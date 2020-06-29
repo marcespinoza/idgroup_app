@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ useRef,useState } from 'react';
 import {Alert, StyleSheet, Text, View, TextInput, Dimensions, Image, ScrollView, KeyboardAvoidingView, TouchableOpacity, Button} from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -10,68 +10,68 @@ import { Formik } from 'formik'
 const {width: WIDTH} = Dimensions.get('window')
 const screenHeight = Math.round(Dimensions.get('window').height);
 
-export default class Login extends React.Component {
+export default function Login(props) {
 
-  constructor(){
-      super();
-      this.state={
+  const [data, setData] = React.useState({
         usuario:'',
         contraseña:'',
-        validity:true,
-        loading: false,
-        showsnack: false,
-        btnLocation:0
-      }
-  }
- 
+        btnLocation:0,
+      })
 
-  _onToggleSnackBar = () => this.setState(showsnack => ({ visible: !showsnack.visible }));
+      const [loading,setLoadingState] = useState(false);
+      const [showsnack,setSnack] = useState(false);
+      const [mensaje_error,setMensajeError] = useState('');
+      const formRef = useRef();
 
-  _onDismissSnackBar = () => this.setState({ showsnack: false });
 
-   render() { return (
+  const _onToggleSnackBar = () => setSnack( !showsnack.visible );
+
+  const _onDismissSnackBar = () => setSnack(false);
+
+  
+    return (
+     
     <Formik
     initialValues={{ 
       documento: '',
       clave: '',
     }}
-    onSubmit={values => Alert.alert(JSON.stringify(values))}
+    innerRef={formRef}
+    onSubmit={loginuser}
     validationSchema={yup.object().shape({
       documento: yup
         .string()
-        .required('Please, provide your name!'),
+        .required('Ingrese su número de documento'),
       clave: yup
-        .string()
-        .min(4)
-        .max(10, 'Password should not excced 10 chars.')
-        .required(),
+        .string() 
+        .required('Ingrese su contraseña'),
     })}
    >
     {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
       <View style={styles.container}>
-       <Loader  loading={this.state.loading} mensaje={'Iniciando sesión..'}/>
+       <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>
        <Snackbar
-          visible={this.state.showsnack}
-          onDismiss={this._onDismissSnackBar}
+          visible={showsnack}
+           onDismiss={_onDismissSnackBar}
           duration={3000}
           style={styles.snack} >
-          Usuario/contraseña incorrecto/a.
+            {mensaje_error}
         </Snackbar>
-          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />
-          
+          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />          
              <View style={styles.logoContainer}>
              <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
              <TextInput 
                value={values.documento}
                style={styles.input}
+               keyboardType='numeric'
                onChangeText={handleChange('documento')}
                onBlur={() => setFieldTouched('documento')}
-               placeholder="Documento"
-             />
-              {touched.documento && errors.documento &&
-              <Text style={{ fontSize: 10, color: 'red' }}>{errors.documento}</Text>
-            }
-          </View>   
+               placeholder="Documento" />             
+          </View> 
+          <View style={{height:12}}>
+              {touched.documento && errors.documento &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.documento}</Text>
+            }</View>  
           
           <View style={styles.logoContainer2}>
              <Icon name="lock" size={25} color="#000000" style={styles.inputIcon}/>
@@ -81,52 +81,59 @@ export default class Login extends React.Component {
               onBlur={() => setFieldTouched('clave')}
               placeholder="Contraseña"/>              
           </View>
+          <View style={{height:12}}>
           {touched.clave && errors.clave &&
-              <Text style={{ fontSize: 10, color: 'red' }}>{errors.clave}</Text>
-            }
-          
-          <TouchableOpacity onPress={handleSubmit }   style={this.state.usuario == '' || this.state.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.clave}</Text>}
+          </View>
+          <TouchableOpacity onPress={handleSubmit }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Register') } 
-              style={this.state.usuario == '' || this.state.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
-              <Text style={{color:'#323232', fontFamily:'roboto-black'}}> REGISTRARME </Text>
+              style={data.usuario == '' || data.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
+              <Text style={{color:'#323232', fontFamily:'roboto-medium'}}> REGISTRARME </Text>
           </TouchableOpacity>
           </View>
            )}
            </Formik>
     );
-  }
-
-  login = async =>{
-    // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-    const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
-    this.setState({loading:true});
-    axios.post(URL, {
-    dni: this.state.usuario,
-    clave: this.state.contraseña,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      "Access-Control-Allow-Headers":"X-Requested-With"
-    },
-  })
-  .then(function(response) {
-    // handle success
-    let resp = response.data;
-    this.setState({loading:false});
-    if(resp.status==true){
-      this.props.navigation.navigate('Main')
-    }else{
-      this.setState({showsnack:true});
-    }
-  }.bind(this))
-  .catch(function(error) {
-    this.setState({loading:false});
-   }.bind(this));
-
-}
-}  
   
+    async function loginuser(){
+      // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+      const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
+      setLoadingState(true);
+      console.log(formRef.current.values.documento);
+      axios.post(URL, {
+      dni: formRef.current.values.documento,
+      clave: formRef.current.values.clave,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        "Access-Control-Allow-Headers":"X-Requested-With"
+      },
+    })
+    .then(function(response) {
+      // handle success
+      let resp = response.data;
+      setLoadingState(false);
+      if(resp.status==true){
+        navigation.navigate('Main')
+      }else{
+        setMensajeError('Usuario/contraseña incorrecto/a')
+        setSnack(true);
+      }
+    }.bind(this))
+    .catch(function(error) {
+      setLoadingState(false);
+      setMensajeError('Error al enviar datos')
+      setSnack(true);
+      console.log(error.response)
+     }.bind(this));
+    
+    }
+
+ 
+}    
+
+
   const styles = StyleSheet.create({
     container: {
       backgroundColor: '#ffffff',
@@ -146,11 +153,9 @@ export default class Login extends React.Component {
       color:'#ffffff',
     },
     logoContainer:{
-      marginTop:10,
-      paddingBottom:10
+      marginTop:20,
     },
     logoContainer2:{
-      marginBottom:10,
     },
     inputIcon:{
       position: "absolute",
