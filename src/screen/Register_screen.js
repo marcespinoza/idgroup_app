@@ -22,7 +22,15 @@ import LabelSelect from '../utils/LabelSelect';
 import Loader from '../utils/Loader.js'
 import * as yup from 'yup'
 import { Formik } from 'formik'
-import Modal from 'react-native-modal';
+import Modal, {
+    ModalTitle,
+    ModalContent,
+    ModalFooter,
+    ModalButton,
+    SlideAnimation,
+    ScaleAnimation,
+  } from 'react-native-modals';
+
 
 
 const {width: WIDTH} = Dimensions.get('window')
@@ -47,7 +55,8 @@ const RegisterScreen = ({navigation}) => {
         PassErrorMessage:'',
         ConfirmPassErrorMessage:'',
         showDropDown: false,
-        loading: false
+        loading: false,
+        modal_:false
     });
 
     const formRef = useRef();
@@ -306,8 +315,44 @@ const RegisterScreen = ({navigation}) => {
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
           <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
           <Modal
-          isVisible={false}>
-              {_renderModalContent()}
+          width={0.9}
+          visible={data.modal_}
+          rounded
+          actionsBordered
+          onTouchOutside={() => {
+            setData({
+                ...data,
+                modal_:false
+            });
+          }}
+          modalTitle={
+            <ModalTitle
+              title="Popup Modal - Default Animation"
+              align="left"
+            />
+          }
+          footer={
+            <ModalFooter>
+              <ModalButton
+                text="IR A PANTALLA DE INICIO"
+                bordered
+                onPress={() => {
+                    setData({
+                        ...data,
+                        modal_:false
+                    });
+                }}
+                key="button-2"
+              />
+            </ModalFooter>
+          }
+        >
+          <ModalContent
+            style={{ backgroundColor: '#fff' }}
+          >
+            <Text>Default Animation</Text>
+            <Text>No onTouchOutside handler. will not dismiss when touch overlay.</Text>
+          </ModalContent>
         </Modal>
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
@@ -452,11 +497,13 @@ const RegisterScreen = ({navigation}) => {
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}
-                    onPress={showModal(true)}  >
+                    onPress={values=>{setData({
+                        ...data,
+                        modal_:true
+                    });}}  >
                  <LinearGradient
                     colors={['#323232', '#4a4949']}
-                    style={styles.signIn}
-                >
+                    style={styles.signIn}>
                     <Text style={[styles.textSign, {
                         color:'#fff'
                     }]}>REGISTRARME</Text>
@@ -571,22 +618,5 @@ const styles = StyleSheet.create({
         width: WIDTH - 55,
         borderBottomColor:'#c1c1c1',
         borderBottomWidth:1,
-      },
-      modalContent: {
-        backgroundColor: 'white',
-        padding: 22,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 4,
-        borderColor: 'rgba(0, 0, 0, 0.1)',
-      },
-      button: {
-        backgroundColor: 'lightblue',
-        padding: 12,
-        margin: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 4,
-        borderColor: 'rgba(0, 0, 0, 0.1)',
       },
   });
