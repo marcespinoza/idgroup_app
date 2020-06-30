@@ -8,7 +8,8 @@ import {
     Platform,
     StyleSheet,
     ScrollView,
-    StatusBar
+    StatusBar,
+    Image
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
@@ -30,6 +31,7 @@ import Modal, {
     SlideAnimation,
     ScaleAnimation,
   } from 'react-native-modals';
+import { Button } from 'react-native-paper';
 
 
 
@@ -59,7 +61,7 @@ const RegisterScreen = ({navigation}) => {
         modal_:false
     });
 
-    const formRef = useRef();
+   const formRef = useRef();
 
    const opciones = [{
         name: 'Educación',
@@ -79,157 +81,31 @@ const RegisterScreen = ({navigation}) => {
         value: 4
       }];
 
-    const nametextInputChange = (val) => {
-        if( val.length !== 0 ) {
-            setData({
-                ...data,
-                nombre: val,
-                NameErrorMessage:''
-            });
-        } else {
-            setData({
-                ...data,
-                nombre: val,
-                NameErrorMessage:'Este campo es obligatorio'
-            });
-        }
-    }
 
-    const lastnametextInputChange = (val) => {
-        if( val.length !== 0 ) {
-            setData({
-                ...data,
-                apellido: val,
-                LastNameErrorMessage: ''
-            });
-        } else {
-            setData({
-                ...data,
-                apellido: val,
-                LastNameErrorMessage: 'Este campo es obligatorio'
-            });
-        }
-    }
-
-
-
-    const ocupaciontextInputChange = (val) => {
-        if( val.length !== 0 ) {
-            setData({
-                ...data,
-                ocupacion: val,
-            });
-        } else {
-            setData({
-                ...data,
-                ocupacion: val,
-            });
-        }
-    }
-
-    const idtextInputChange = (val) => {
-        if( val.length !== 0 ) {
-            setData({
-                ...data,
-                documento: val,
-                IdErrorMessage:''
-            });
-        } else {
-            setData({
-                ...data,
-                documento: val,
-                IdErrorMessage:'Este campo es obligatorio'
-            });
-        }
-    }
-
-    const mailtextInputChange = (val) => {
-        if( val.length !== 0 ) {
-            setData({
-                ...data,
-                correo: val,
-                IdErrorMessage:''
-            });
-        } else {
-            setData({
-                ...data,
-                correo: val,
-                IdErrorMessage:'Este campo es obligatorio'
-            });
-        }
-    }
-
-    const passwordtextInputChange = (val) => {
-        if( val.length == 0 ) {
-            setData({
-                ...data,
-                contraseña: val,
-                PassErrorMessage:'Este campo es obligatorio'
-            });
-        }else if(val.length !== 0  && data.confirma_contraseña !== val){
-            setData({
-                ...data,
-                contraseña: val,
-                PassErrorMessage:'Las contraseñas deben coincidir'
-            });
-        } else {
-            setData({
-                ...data,
-                contraseña: val,
-                PassErrorMessage:'',
-                ConfirmPassErrorMessage:''
-            });
-        }
-    }
-
-    const confirmPasswordtextInputChange = (val) => {
-        if( val.length == 0 ) {
-            setData({
-                ...data,
-                confirma_contraseña: val,
-                ConfirmPassErrorMessage:'Este campo es obligatorio'
-            });
-        }else if(val.length !== 0  && data.contraseña !== val){
-            setData({
-                ...data,
-                confirma_contraseña: val,
-                ConfirmPassErrorMessage:'Las contraseñas deben coincidir'
-            });
-        } else {
-            setData({
-                ...data,
-                confirma_contraseña: val,
-                ConfirmPassErrorMessage:'',
-                PassErrorMessage:''
-            });
-        }
-    }
-
-
-   const registro = async =>{
+   async function registro() {
         const URL = 'http://admidgroup.com/api_rest/index.php/api/cliente';
         setData({
             ...data,
             loading:true
         });
         axios.post(URL, {
-        nombre: data.nombre,
-        apellido: data.apellido,
-        correo: data.correo,
-        ocupacion: data.ocupacion,
-        documento: data.documento,
+        nombre: formRef.current.values.nombre,
+        apellido: formRef.current.values.apellido,
+        correo: formRef.current.values.correo,
+        ocupacion: formRef.current.values.ocupacion,
+        documento: formRef.current.values.documento,
         fecha_nacimiento: moment(nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
         interes: 'data.interes',
-        clave: data.contraseña,
+        clave: formRef.current.values.contraseña,
       })
       .then(function(response) {
         // handle success
         let resp = response.data;
         setData({
             ...data,
-            loading:false
+            loading:false,
+            modal_:true
         });
-        console.log(response)
       }.bind(this))
       .catch(function(error) {
         setData({
@@ -279,34 +155,50 @@ const RegisterScreen = ({navigation}) => {
             setInteres(items2);
           }
 
-        const _renderButton = (text, onPress) => (
-            <TouchableOpacity onPress={onPress}>
-              <View style={styles.button}>
-                <Text>{text}</Text>
-              </View>
-            </TouchableOpacity>
-          );
-        
-        const  _renderModalContent = () => (
-            <View style={styles.modalContent}>
-              <Text>Hello!</Text>
-              {_renderButton('Close', () => showModal(false))}
-            </View>
-          );
+               
+        function closeScreen() {
+          setData({
+            ...data,
+            modal_:false
+        });
+          navigation.navigate('LoginScreen')
+        };
 
     return (
         <Formik
     initialValues={{ 
-      documento: '',
-      clave: '',
+      nombre: '',
+      apellido: '',
+      correo:'',
+      ocupacion:'',
+      documento:'',
+      fecha_nacimiento:'',
+      interes:'',
+      contraseña:'',
+      confirma_contraseña:''
     }}
     innerRef={formRef}
     onSubmit={registro}
     validationSchema={yup.object().shape({
-      nombre: yup
+        nombre: yup
         .string()
         .required('Este campo es obligatorio'),
-      apellido: yup
+        apellido: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+        correo: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+        ocupacion: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+        documento: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+        contraseña: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+        confirma_contraseña: yup
         .string() 
         .required('Este campo es obligatorio'),
     })}  >
@@ -315,7 +207,7 @@ const RegisterScreen = ({navigation}) => {
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
           <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
           <Modal
-          width={0.9}
+          width={0.7}
           visible={data.modal_}
           rounded
           actionsBordered
@@ -327,32 +219,25 @@ const RegisterScreen = ({navigation}) => {
           }}
           modalTitle={
             <ModalTitle
-              title="Popup Modal - Default Animation"
-              align="left"
+              title="Registro exitoso"
             />
           }
           footer={
             <ModalFooter>
-              <ModalButton
-                text="IR A PANTALLA DE INICIO"
-                bordered
-                onPress={() => {
-                    setData({
-                        ...data,
-                        modal_:false
-                    });
-                }}
-                key="button-2"
-              />
+              <TouchableOpacity
+                    style={styles.signIn}
+                    onPress={() => closeScreen()}  >
+                 <LinearGradient
+                    colors={['#323232', '#4a4949']}
+                    style={styles.signIn2}>
+                    <Text style={[styles.textSign, {
+                        color:'#fff'
+                    }]}>VOLVER AL INICIO</Text>
+                </LinearGradient> 
+                </TouchableOpacity>
             </ModalFooter>
           }
         >
-          <ModalContent
-            style={{ backgroundColor: '#fff' }}
-          >
-            <Text>Default Animation</Text>
-            <Text>No onTouchOutside handler. will not dismiss when touch overlay.</Text>
-          </ModalContent>
         </Modal>
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
@@ -362,77 +247,74 @@ const RegisterScreen = ({navigation}) => {
             style={styles.footer}   >
             <ScrollView>                
             <View>
-            <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
-            <TextInput
-             value={values.nombre}
-             style={styles.input}
-             placeholder="Nombre/s"
-             leftIcon={<MaterialCommunityIcons 
-             name="account-circle-outline"
-             color="#05375a"
-             size={22}/>}
-             inputContainerStyle={{ borderColor: '#EAEAEA' }}
-             onChangeText={handleChange('nombre')}
-             onBlur={() => setFieldTouched('nombre')}  />
-        </View>
-        <View style={{height:12}}>
+               <TextInput
+                 value={values.nombre}
+                 style={styles.input}
+                 placeholder="Nombre/s"
+                 inputContainerStyle={{ borderColor: '#EAEAEA' }}
+                 onChangeText={handleChange('nombre')}
+                 onBlur={() => setFieldTouched('nombre')}  />
+           </View>
+           <View style={{height:12, alignItems:'center'}}>
               {touched.nombre && errors.nombre &&              
               <Text style={{ fontSize: 10, color: 'red'}}>{errors.nombre}</Text>
             }</View>
             <View >
-            <Input
-            placeholder="Apellido/s"
-             leftIcon={<MaterialCommunityIcons 
-                name="account-circle-outline"
-              color="#05375a"
-              size={22}
-                />}
-            inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            errorMessage={data.LastNameErrorMessage} 
-            onChangeText={value => lastnametextInputChange(value)} 
+            <TextInput
+              placeholder="Apellido/s"
+              value={values.apellido}
+              style={styles.input}
+              inputContainerStyle={{ borderColor: '#EAEAEA' }}
+              onChangeText={handleChange('apellido')}
+               onBlur={() => setFieldTouched('apellido')} 
              />
             </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.apellido && errors.apellido &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.apellido}</Text>
+            }</View>
             <View >
-            <Input
+            <TextInput
             placeholder="Correo"
-             leftIcon={<MaterialCommunityIcons 
-                name="email-outline"
-              color="#05375a"
-              size={22}
-                />}
+            value={values.correo}
+            style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            errorMessage={data.LastNameErrorMessage} 
-            onChangeText={value => mailtextInputChange(value)} 
-             />
+            onChangeText={handleChange('correo')}
+               onBlur={() => setFieldTouched('correo')} />
             </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.correo && errors.correo &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.correo}</Text>
+            }</View>
             <View >
-            <Input
+            <TextInput
             placeholder="Ocupación"
-             leftIcon={<MaterialCommunityIcons 
-                name="wallet-travel"
-              color="#05375a"
-              size={22}
-                />}
+            value={values.ocupacion}
+            style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            errorMessage={data.LastNameErrorMessage} 
-            onChangeText={value => ocupaciontextInputChange(value)} 
+            onChangeText={handleChange('ocupacion')}
+             onBlur={() => setFieldTouched('ocupacion')} 
              />
             </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.ocupacion && errors.ocupacion &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.ocupacion}</Text>
+            }</View>
             <View >
-            <Input
+            <TextInput
             placeholder="Documento"
             keyboardType='numeric'
-             leftIcon={<MaterialCommunityIcons 
-                name="card-bulleted-outline"
-              color="#05375a"
-              size={22}
-                />}
-            errorMessage=''
+            value={values.documento}
+            style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            onChangeText={value => idtextInputChange(value)}   />
+            onChangeText={handleChange('documento')}
+             onBlur={() => setFieldTouched('documento')}   />
             </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.documento && errors.documento &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.documento}</Text>
+            }</View>
             <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
-            {/* <Icon name="lock" size={25} color="#000000" style={{marginTop:4}}/> */}
             <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Fecha de nacimiento</Text>
             <TextInputMask
                style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
@@ -441,11 +323,14 @@ const RegisterScreen = ({navigation}) => {
                 options={{
                     format: 'DD-MM-YYYY'
                   }}
-                value={nacimiento}
-                onChangeText={text => { setNacimiento(text)}}  />
-
-            </View>
-            <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10, paddingBottom:15}}/>
+                value={nacimiento} 
+                onChangeText={text => { setNacimiento(text)}} />            
+            </View>            
+            <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10}}/>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.fecha_nacimiento && errors.fecha_nacimiento &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.fecha_nacimiento}</Text>
+            }</View>
             <View style={{marginLeft:12}}>
                 <Text style={{fontSize:17, fontFamily:'roboto-light',color:'#AAAAAA'}}>Intereses</Text>
                 <LabelSelect
@@ -470,37 +355,35 @@ const RegisterScreen = ({navigation}) => {
             </View>
             <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10, paddingBottom:10}}/>
             <View >
-            <Input
+            <TextInput
             placeholder="Contraseña"
-             leftIcon={<MaterialCommunityIcons 
-                name="lock-open-variant-outline"
-              color="#05375a"
-              size={20}
-                />}
+            style={styles.input}
+            value={values.contraseña}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            errorMessage={data.PassErrorMessage} 
-            onChangeText={val => { passwordtextInputChange(val)}}   />
+            onChangeText={handleChange('contraseña')}
+            onBlur={() => setFieldTouched('contraseña')}    />
             </View>
-
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.contraseña && errors.contraseña &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.contraseña}</Text>
+            }</View>
             <View >
-            <Input
+            <TextInput
             placeholder="Confirme contraseña"
-             leftIcon={<MaterialCommunityIcons 
-                name="lock-open-variant-outline"
-              color="#05375a"
-              size={20}
-                />}
+            value={values.confirma_contraseña}
+            style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}    
-            errorMessage={data.ConfirmPassErrorMessage} 
-            onChangeText={value => confirmPasswordtextInputChange(value)}  />
+            onChangeText={handleChange('confirma_contraseña')}
+            onBlur={() => setFieldTouched('confirma_contraseña')}   />
             </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.confirma_contraseña && errors.confirma_contraseña &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.confirma_contraseña}</Text>
+            }</View>
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}
-                    onPress={values=>{setData({
-                        ...data,
-                        modal_:true
-                    });}}  >
+                    onPress={handleSubmit}  >
                  <LinearGradient
                     colors={['#323232', '#4a4949']}
                     style={styles.signIn}>
@@ -525,7 +408,7 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
     container: {
       flex: 1, 
-      backgroundColor: '#20b1e8'
+      backgroundColor: '#20b1e8',
     },
     header: {
         flex: 1,
@@ -594,6 +477,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 25
     },
+    signIn2: {
+      width: '100%',
+      height: 44,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
     textSign: {
         fontSize: 15,
     },
@@ -608,12 +497,11 @@ const styles = StyleSheet.create({
     inputIcon:{
         position: "absolute",
         top:10,
-        left:37
+        left:12
       },
       input:{
-        marginHorizontal:25,
+        marginLeft:12,
         fontSize: 16,
-        paddingLeft:45,
         height: 44,
         width: WIDTH - 55,
         borderBottomColor:'#c1c1c1',
