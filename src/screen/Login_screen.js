@@ -88,7 +88,7 @@ export default function Login(props) {
           <TouchableOpacity onPress={handleSubmit }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Register') } 
+          <TouchableOpacity onPress={() => props.navigation.navigate('Register') } 
               style={data.usuario == '' || data.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
               <Text style={{color:'#323232', fontFamily:'roboto-medium'}}> REGISTRARME </Text>
           </TouchableOpacity>

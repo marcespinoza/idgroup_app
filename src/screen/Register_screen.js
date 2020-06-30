@@ -1,9 +1,10 @@
-import React ,{useState, useEffect}from 'react';
+import React ,{useState, useEffect, useRef}from 'react';
 import { 
     View, 
     Text, 
-    Button, 
+    Dimensions, 
     TouchableOpacity, 
+    TextInput,
     Platform,
     StyleSheet,
     ScrollView,
@@ -11,7 +12,7 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import moment from 'moment';
@@ -19,8 +20,12 @@ import { Input } from 'react-native-elements';
 import { TextInputMask } from 'react-native-masked-text'
 import LabelSelect from '../utils/LabelSelect';
 import Loader from '../utils/Loader.js'
+import * as yup from 'yup'
+import { Formik } from 'formik'
+import Modal from 'react-native-modal';
 
 
+const {width: WIDTH} = Dimensions.get('window')
 
 const RegisterScreen = ({navigation}) => {
 
@@ -44,6 +49,8 @@ const RegisterScreen = ({navigation}) => {
         showDropDown: false,
         loading: false
     });
+
+    const formRef = useRef();
 
    const opciones = [{
         name: 'Educación',
@@ -226,6 +233,7 @@ const RegisterScreen = ({navigation}) => {
     }
 
     const [nacimiento, setNacimiento] = useState('');
+    const [statemodal, showModal] = useState(false);
     const [items, setInteres] = useState([]);
     useEffect(() => {
         // Should not ever set state during rendering, so do this in useEffect instead.
@@ -262,10 +270,45 @@ const RegisterScreen = ({navigation}) => {
             setInteres(items2);
           }
 
+        const _renderButton = (text, onPress) => (
+            <TouchableOpacity onPress={onPress}>
+              <View style={styles.button}>
+                <Text>{text}</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        
+        const  _renderModalContent = () => (
+            <View style={styles.modalContent}>
+              <Text>Hello!</Text>
+              {_renderButton('Close', () => showModal(false))}
+            </View>
+          );
+
     return (
+        <Formik
+    initialValues={{ 
+      documento: '',
+      clave: '',
+    }}
+    innerRef={formRef}
+    onSubmit={registro}
+    validationSchema={yup.object().shape({
+      nombre: yup
+        .string()
+        .required('Este campo es obligatorio'),
+      apellido: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+    })}  >
+    {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
       <View style={styles.container}>
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
           <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
+          <Modal
+          isVisible={false}>
+              {_renderModalContent()}
+        </Modal>
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
         </View>
@@ -274,16 +317,23 @@ const RegisterScreen = ({navigation}) => {
             style={styles.footer}   >
             <ScrollView>                
             <View>
-            <Input
-            placeholder="Nombre/s"
+            <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
+            <TextInput
+             value={values.nombre}
+             style={styles.input}
+             placeholder="Nombre/s"
              leftIcon={<MaterialCommunityIcons 
              name="account-circle-outline"
              color="#05375a"
              size={22}/>}
              inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            errorMessage={data.NameErrorMessage}
-            onChangeText={value => nametextInputChange(value)}  />
+             onChangeText={handleChange('nombre')}
+             onBlur={() => setFieldTouched('nombre')}  />
         </View>
+        <View style={{height:12}}>
+              {touched.nombre && errors.nombre &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.nombre}</Text>
+            }</View>
             <View >
             <Input
             placeholder="Apellido/s"
@@ -402,7 +452,7 @@ const RegisterScreen = ({navigation}) => {
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}
-                    onPress={registro}  >
+                    onPress={showModal(true)}  >
                  <LinearGradient
                     colors={['#323232', '#4a4949']}
                     style={styles.signIn}
@@ -416,6 +466,8 @@ const RegisterScreen = ({navigation}) => {
             </ScrollView>
         </Animatable.View>
       </View>
+      )}
+      </Formik>
     );
 };
 
@@ -505,5 +557,36 @@ const styles = StyleSheet.create({
     },
     color_textPrivate: {
         color: 'grey'
-    }
+    },
+    inputIcon:{
+        position: "absolute",
+        top:10,
+        left:37
+      },
+      input:{
+        marginHorizontal:25,
+        fontSize: 16,
+        paddingLeft:45,
+        height: 44,
+        width: WIDTH - 55,
+        borderBottomColor:'#c1c1c1',
+        borderBottomWidth:1,
+      },
+      modalContent: {
+        backgroundColor: 'white',
+        padding: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+      },
+      button: {
+        backgroundColor: 'lightblue',
+        padding: 12,
+        margin: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+      },
   });
