@@ -9,7 +9,9 @@ import {
     StyleSheet,
     ScrollView,
     StatusBar,
-    Image
+    ImageBackground,
+    Image,
+    Animated, Easing
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
@@ -32,7 +34,7 @@ import Modal, {
     ScaleAnimation,
   } from 'react-native-modals';
 import { Button } from 'react-native-paper';
-
+import LottieView from 'lottie-react-native';
 
 
 const {width: WIDTH} = Dimensions.get('window')
@@ -58,7 +60,8 @@ const RegisterScreen = ({navigation}) => {
         ConfirmPassErrorMessage:'',
         showDropDown: false,
         loading: false,
-        modal_:false
+        modal_:false,
+        progress:new Animated.Value(0),
     });
 
    const formRef = useRef();
@@ -104,7 +107,12 @@ const RegisterScreen = ({navigation}) => {
         setData({
             ...data,
             loading:false,
-            modal_:true
+            modal_:true,
+            progress:Animated.timing(data.progress, {
+              toValue: 1,
+              duration: 5000,
+              easing: Easing.linear,
+            }).start()
         });
       }.bind(this))
       .catch(function(error) {
@@ -123,20 +131,13 @@ const RegisterScreen = ({navigation}) => {
     useEffect(() => {
         // Should not ever set state during rendering, so do this in useEffect instead.
         setInteres(opciones);
+        
       }, []);
-
-    const showDatePicker = () => {
-      setDatePickerVisibility(true);
-    };
-  
-    const hideDatePicker = () => {
-      setDatePickerVisibility(false);
-    };
-  
-    const handleConfirm = (date) => {
-      setNacimiento(moment(date, 'MMMM Do YYYY, h:mm:ss a').format('DD-MM-YYYY'))
-      hideDatePicker();
-    };
+      Animated.timing(data.progress, {
+        toValue: 1,
+        duration: 2500,
+        easing: Easing.linear,
+      }).start();
 
          const selectConfirm=(list)=> {
             let items2 = [...items];
@@ -163,6 +164,9 @@ const RegisterScreen = ({navigation}) => {
         });
           navigation.navigate('LoginScreen')
         };
+
+        const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
+
 
     return (
         <Formik
@@ -193,20 +197,50 @@ const RegisterScreen = ({navigation}) => {
         .string() 
         .required('Este campo es obligatorio'),
         documento: yup
-        .string() 
-        .required('Este campo es obligatorio'),
+        .string()
+        .required('P'),
         contraseña: yup
-        .string() 
+        .string()
+        .min(5,'Mínimo 5 caracteres')
+        .max(10,'Máximo 10 caracteres') 
         .required('Este campo es obligatorio'),
         confirma_contraseña: yup
         .string() 
-        .required('Este campo es obligatorio'),
+        .min(5,'Mínimo 5 caracteres')
+        .max(10,'Máximo 10 caracteres')
+        .required('Este campo es obligatorio')
+        .label('Confirm password')
+        .test('passwords-match', 'Las contraseñas deben coincidir', function(value) {
+        return this.parent.contraseña === value;
+        }),
     })}  >
     {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
       <View style={styles.container}>
+        <ImageBackground  source={require('../../Images/fondoregister.jpg')} style={styles.backgroundImage} >
+
           <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
           <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
           <Modal
+            animationType = {"slide"}
+            transparent={false}
+            visible={data.modal_}
+            onRequestClose={() => {
+            }}>
+              <View style={{alignItems:'center', padding:10}}>
+        <LottieView
+         source={require('../../Images/check2.json')}   
+         progress={data.progress}
+            
+         style={{ width: 60, height: 60 , alignSelf:'center'}}
+          resizeMode="cover"   />
+              <Text style = { styles.text }>
+                  Se ha registrado correctamente</Text>
+           <TouchableOpacity style={{}} onPress={closeScreen } >
+              <Text style={{color:'#AAAAAA', fontFamily:'roboto-black', margin:8}}> VOLVER AL INICIO </Text>
+          </TouchableOpacity>
+          </View>
+          </Modal>
+          {/* <Modal
           width={0.7}
           visible={data.modal_}
           rounded
@@ -219,7 +253,8 @@ const RegisterScreen = ({navigation}) => {
           }}
           modalTitle={
             <ModalTitle
-              title="Registro exitoso"
+              title="Registro correcto"
+              textStyle={{color:'#288E0F'}}
             />
           }
           footer={
@@ -227,18 +262,14 @@ const RegisterScreen = ({navigation}) => {
               <TouchableOpacity
                     style={styles.signIn}
                     onPress={() => closeScreen()}  >
-                 <LinearGradient
-                    colors={['#323232', '#4a4949']}
-                    style={styles.signIn2}>
                     <Text style={[styles.textSign, {
-                        color:'#fff'
+                        color:'#323232'
                     }]}>VOLVER AL INICIO</Text>
-                </LinearGradient> 
                 </TouchableOpacity>
             </ModalFooter>
           }
         >
-        </Modal>
+        </Modal> */}
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
         </View>
@@ -304,6 +335,7 @@ const RegisterScreen = ({navigation}) => {
             <TextInput
             placeholder="Documento"
             keyboardType='numeric'
+            maxLength={8} 
             value={values.documento}
             style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
@@ -395,6 +427,7 @@ const RegisterScreen = ({navigation}) => {
             </View>
             </ScrollView>
         </Animatable.View>
+        </ImageBackground>
       </View>
       )}
       </Formik>
@@ -408,7 +441,6 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
     container: {
       flex: 1, 
-      backgroundColor: '#20b1e8',
     },
     header: {
         flex: 1,
@@ -507,4 +539,8 @@ const styles = StyleSheet.create({
         borderBottomColor:'#c1c1c1',
         borderBottomWidth:1,
       },
+      backgroundImage: {
+        flex: 1,
+        resizeMode: 'cover', // or 'stretch'
+       }
   });
