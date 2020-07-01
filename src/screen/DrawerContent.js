@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
     useTheme,
@@ -21,8 +21,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function DrawerContent(props) {
 
-    const paperTheme = useTheme();
-
+  function signOut(){
+      props.navigation.navigate('LoginScreen');
+  }
 
     return(
         <View style={{flex:1}}>
@@ -35,7 +36,7 @@ export default function DrawerContent(props) {
                                 size={50}
                             />
                             <View style={{marginLeft:15, flexDirection:'column'}}>
-                                <Title style={styles.title}>Marcelo Espinoza</Title>
+                                <Title style={styles.title}>Usuario</Title>
                             </View>
                         </View>
                     </View>
@@ -87,7 +88,7 @@ export default function DrawerContent(props) {
                         />
                     )}
                     label="Cerrar sesión"
-                    onPress={() => {signOut()}}
+                    onPress={() => {}}
                 />
             </Drawer.Section>
         </View>

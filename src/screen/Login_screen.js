@@ -115,7 +115,12 @@ export default function Login(props) {
       let resp = response.data;
       setLoadingState(false);
       if(resp.status==true){
-        props.navigation.navigate('Main')
+        console.log(resp.nombre)
+        console.log(resp.apellido)
+        props.navigation.navigate('Main',
+        {
+          usuario: resp.nombre + resp.apellido,
+        })
       }else{
         setMensajeError('Usuario/contraseña incorrecto/a')
         setSnack(true);

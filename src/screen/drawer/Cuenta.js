@@ -1,13 +1,37 @@
-import React from 'react';
+import React, {useState,useEffect} from 'react';
 import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Avatar, Button, Title, Paragraph } from 'react-native-paper';
 import {Card, CardItem,Header, Body} from 'native-base';
+import axios from 'axios';
+
 
 const LeftContent = props => <Avatar.Icon {...props} icon="folder" />
 
 const CuentaScreen = ({navigation}) => {
 
+  const [oficial, setOficial] = useState("");
+  const [blue, setBlue] = useState("");
+
+  async function getCotizacion() {
+    const URL = 'https://www.dolarsi.com/api/api.php?type=valoresprincipales';
+    axios.get(URL)
+  .then(function(response) {
+    // handle success
+    let resp = response.data;
+    setOficial(resp[0].casa.venta)
+    setBlue(resp[1].casa.venta)
+  }.bind(this))
+  .catch(function(error) {
+    console.log(JSON.stringify(error));
+   }.bind(this));
+
+}
+
+useEffect(() => {
+  // Actualiza el título del documento usando la API del navegador
+  getCotizacion()
+});
   
     return (
       <View style={styles.container}>
@@ -41,6 +65,7 @@ const CuentaScreen = ({navigation}) => {
             <View style={{borderTopColor: '#20b1e8', borderTopWidth: 1, marginLeft:20, marginRight:20}}>
             <Text style={styles.textstyleheader}> VARIACION MENSUAL </Text>
             <Text style={styles.textstyle}> % 25 </Text>
+            <View style={{flexDirection:'row', paddingTop:13}}><Text style={styles.cotizacion}>Dolar oficial: US$ {oficial}</Text><Text style={styles.cotizacion}>Dolar blue: US$ {blue}</Text></View>
             </View>
             </Card>
             <Card style={styles.navBar}>
@@ -119,5 +144,9 @@ rightIcon: {
   width: 10,
   resizeMode: 'contain',
   backgroundColor: 'white',
+},
+cotizacion:{
+  flex:1,
+  fontFamily:'roboto-thin'
 }
 });

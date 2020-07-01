@@ -25,7 +25,10 @@ function DrawerScreen  () {
 };  
 
 
-function NotificationsScreen({ navigation }) {
+function NotificationsScreen({ route, navigation }) {
+
+const {nombreusuario} = route.usuario;
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={{flex:1}}>

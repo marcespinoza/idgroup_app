@@ -108,12 +108,12 @@ const RegisterScreen = ({navigation}) => {
             ...data,
             loading:false,
             modal_:true,
-            progress:Animated.timing(data.progress, {
-              toValue: 1,
-              duration: 5000,
-              easing: Easing.linear,
-            }).start()
         });
+        Animated.timing(data.progress, {
+          toValue: 1,
+          duration: 2500,
+          easing: Easing.linear,
+        }).start();
       }.bind(this))
       .catch(function(error) {
         setData({
@@ -133,11 +133,7 @@ const RegisterScreen = ({navigation}) => {
         setInteres(opciones);
         
       }, []);
-      Animated.timing(data.progress, {
-        toValue: 1,
-        duration: 2500,
-        easing: Easing.linear,
-      }).start();
+      
 
          const selectConfirm=(list)=> {
             let items2 = [...items];
