@@ -161,8 +161,6 @@ const RegisterScreen = ({navigation}) => {
           navigation.navigate('LoginScreen')
         };
 
-        const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
-
 
     return (
         <Formik
@@ -194,7 +192,7 @@ const RegisterScreen = ({navigation}) => {
         .required('Este campo es obligatorio'),
         documento: yup
         .string()
-        .required('P'),
+        .required('Este campo es obligatorio'),
         contraseña: yup
         .string()
         .min(5,'Mínimo 5 caracteres')

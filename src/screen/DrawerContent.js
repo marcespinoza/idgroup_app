@@ -1,5 +1,5 @@
-import React,{useEffect} from 'react';
-import { View, StyleSheet } from 'react-native';
+import React,{useEffect, useState} from 'react';
+import { View, StyleSheet,AsyncStorage } from 'react-native';
 import {
     useTheme,
     Avatar,
@@ -15,14 +15,27 @@ import {
     DrawerContentScrollView,
     DrawerItem
 } from '@react-navigation/drawer';
-
+import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
-export default function DrawerContent(props) {
+const DrawerContent = props => {
 
-  function signOut(){
-      props.navigation.navigate('LoginScreen');
+  const [usuario, setUsuario] = useState('usuario');
+
+  useEffect(() => {
+    retrieveData();
+  });
+
+const retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("usuario");
+      if (value !== null) {
+        setUsuario(value);
+      }
+     } catch (error) {
+       // Error retrieving data
+     }
   }
 
     return(
@@ -31,12 +44,12 @@ export default function DrawerContent(props) {
                 <View style={styles.drawerContent}>
                     <View style={styles.userInfoSection}>
                         <View style={{flexDirection:'row',marginTop: 15}}>
-                            <Avatar.Image 
+                            {/* <Avatar.Image 
                                 source={require('../../Images/logo_login.jpg')}
                                 size={50}
-                            />
+                            /> */}
                             <View style={{marginLeft:15, flexDirection:'column'}}>
-                                <Title style={styles.title}>Usuario</Title>
+                            <Title style={styles.title}>{usuario}</Title>
                             </View>
                         </View>
                     </View>
@@ -62,7 +75,7 @@ export default function DrawerContent(props) {
                                 />
                             )}
                             label="Compartir"
-                            onPress={() => {props.navigation.navigate('Profile')}}
+                            onPress={() => {props.navigation.navigate('Perfil')}}
                         />
                          <DrawerItem 
                             icon={({color, size}) => (
@@ -73,7 +86,7 @@ export default function DrawerContent(props) {
                                 />
                             )}
                             label="Mi perfil"
-                            onPress={() => {props.navigation.navigate('Profile')}}
+                            onPress={() => {props.navigation.navigate('Perfil')}}
                         />
                     </Drawer.Section>
                 </View>
@@ -94,6 +107,8 @@ export default function DrawerContent(props) {
         </View>
     );
 }
+
+export default DrawerContent;
 
 const styles = StyleSheet.create({
     drawerContent: {

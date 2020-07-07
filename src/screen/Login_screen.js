@@ -1,5 +1,5 @@
-import React,{ useRef,useState } from 'react';
-import {Alert, StyleSheet, Text, View, TextInput, Dimensions, Image, ScrollView, KeyboardAvoidingView, TouchableOpacity, Button} from 'react-native';
+import React,{ useRef,useState, useEffect } from 'react';
+import {AsyncStorage, StyleSheet, Text, View, TextInput, Dimensions, Image, ScrollView, KeyboardAvoidingView, TouchableOpacity, Button} from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../utils/Loader.js'
@@ -9,6 +9,7 @@ import { Formik } from 'formik'
 
 const {width: WIDTH} = Dimensions.get('window')
 const screenHeight = Math.round(Dimensions.get('window').height);
+const windowHeight = Dimensions.get('window').height;
 
 export default function Login(props) {
 
@@ -18,16 +19,24 @@ export default function Login(props) {
         btnLocation:0,
       })
 
-      const [loading,setLoadingState] = useState(false);
-      const [showsnack,setSnack] = useState(false);
-      const [mensaje_error,setMensajeError] = useState('');
-      const formRef = useRef();
+  const [loading,setLoadingState] = useState(false);
+  const [showsnack,setSnack] = useState(false);
+  const [mensaje_error,setMensajeError] = useState('');
+  const formRef = useRef();
 
 
   const _onToggleSnackBar = () => setSnack( !showsnack.visible );
 
   const _onDismissSnackBar = () => setSnack(false);
 
+  const _storeData =async (usuario) => {
+    try {
+       var jsonOfItem = await AsyncStorage.setItem("usuario", usuario);
+       return jsonOfItem;
+    } catch (error) {
+       console.log(error.message);
+    }
+  }
   
     return (
      
@@ -49,6 +58,8 @@ export default function Login(props) {
    >
     {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
       <View style={styles.container}>
+        <ScrollView>
+          <KeyboardAvoidingView  behavior='padding' style={styles.container}>  
        <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>
        <Snackbar
           visible={showsnack}
@@ -57,7 +68,8 @@ export default function Login(props) {
           style={styles.snack} >
             {mensaje_error}
         </Snackbar>
-          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />          
+          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />    
+        
              <View style={styles.logoContainer}>
              <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
              <TextInput 
@@ -85,6 +97,9 @@ export default function Login(props) {
           {touched.clave && errors.clave &&
               <Text style={{ fontSize: 10, color: 'red' }}>{errors.clave}</Text>}
           </View>
+          </KeyboardAvoidingView>  
+          </ScrollView>
+          <View style={{}}>
           <TouchableOpacity onPress={handleSubmit }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
@@ -92,6 +107,7 @@ export default function Login(props) {
               style={data.usuario == '' || data.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
               <Text style={{color:'#323232', fontFamily:'roboto-medium'}}> REGISTRARME </Text>
           </TouchableOpacity>
+          </View>
           </View>
            )}
            </Formik>
@@ -101,7 +117,6 @@ export default function Login(props) {
       // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
       const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
       setLoadingState(true);
-      console.log(formRef.current.values.documento);
       axios.post(URL, {
       dni: formRef.current.values.documento,
       clave: formRef.current.values.clave,
@@ -113,14 +128,15 @@ export default function Login(props) {
     .then(function(response) {
       // handle success
       let resp = response.data;
+      _storeData();
       setLoadingState(false);
       if(resp.status==true){
-        console.log(resp.nombre)
-        console.log(resp.apellido)
         props.navigation.navigate('Main',
         {
           usuario: resp.nombre + resp.apellido,
         })
+        _storeData(resp.nombre +" "+ resp.apellido)
+
       }else{
         setMensajeError('Usuario/contraseña incorrecto/a')
         setSnack(true);

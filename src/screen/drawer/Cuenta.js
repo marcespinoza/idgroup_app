@@ -35,7 +35,7 @@ useEffect(() => {
   
     return (
       <View style={styles.container}>
-        <Image style={styles.backgroundImage} source={require('../../../Images/card_background.jpg')}  />
+        <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />
          <Card style={{marginLeft: 5,
                                marginRight: 5,
                                marginTop: 5,
