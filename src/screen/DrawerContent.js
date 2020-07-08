@@ -1,15 +1,8 @@
 import React,{useEffect, useState} from 'react';
 import { View, StyleSheet,AsyncStorage } from 'react-native';
 import {
-    useTheme,
-    Avatar,
     Title,
-    Caption,
-    Paragraph,
-    Drawer,
-    Text,
-    TouchableRipple,
-    Switch
+    Drawer
 } from 'react-native-paper';
 import {
     DrawerContentScrollView,
@@ -17,7 +10,7 @@ import {
 } from '@react-navigation/drawer';
 import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import * as Linking from 'expo-linking';
 
 const DrawerContent = props => {
 
@@ -26,6 +19,11 @@ const DrawerContent = props => {
   useEffect(() => {
     retrieveData();
   });
+
+  _openFacebookPage = () => {
+    Linking.openURL('https://www.facebook.com/IDGroupdesarrollosinmobiliarios/');
+    this.props.onPress && this.props.onPress();
+  };
 
 const retrieveData = async () => {
     try {
@@ -75,7 +73,7 @@ const retrieveData = async () => {
                                 />
                             )}
                             label="Compartir"
-                            onPress={() => {props.navigation.navigate('Perfil')}}
+                            onPress={() => {_openFacebookPage()}}
                         />
                          <DrawerItem 
                             icon={({color, size}) => (

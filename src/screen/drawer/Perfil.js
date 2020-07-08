@@ -1,5 +1,5 @@
 import React, {useState,useEffect, useRef} from 'react';
-import { View, Text, StyleSheet, StatusBar, ImageBackground, Animated, Easing, ScrollView, TextInput, TouchableOpacity, Dimensions} from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ImageBackground, Animated, Easing, ScrollView, TextInput, TouchableOpacity, Dimensions, Switch} from 'react-native';
 import { Formik } from 'formik'
 import axios from 'axios';
 import * as yup from 'yup';
@@ -36,13 +36,18 @@ const PerfilScreen = ({navigation}) => {
     progress:new Animated.Value(0),
 });
 
+    const toggle = React.useCallback(() => {
+      setFormState(formState === false ? true: false);
+    }, [formState, setFormState]);
+
+    const toggleSwitch = () => setFormState(previousState => !previousState);
+
     const [nacimiento, setNacimiento] = useState('');
-    const [statemodal, showModal] = useState(false);
     const [items, setInteres] = useState([]);
+    const [formState, setFormState] = useState(false);
+
     useEffect(() => {
-        // Should not ever set state during rendering, so do this in useEffect instead.
-        setInteres(opciones);
-        
+        setInteres(opciones);        
       }, []);
       
 
@@ -170,20 +175,24 @@ const PerfilScreen = ({navigation}) => {
       })}  >
       {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
         <View style={styles.container}>
-          <ImageBackground  source={require('../../../Images/fondoregister.jpg')} style={styles.backgroundImage} >  
+          
             <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
             <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
           <View style={styles.header}>
-              <Text style={styles.text_header}>Bienvenido!</Text>
-          </View>
-            
+            <Text style={{fontFamily:'roboto-thin', fontSize:20}}>Editar mis datos</Text>
+            <Switch
+             onValueChange = {toggleSwitch}
+             value={formState}/>              
+          </View>            
               <ScrollView >    
-              <View style={{backgroundColor:"#FFFFFF", margin:10}}>            
+              <View >     
                <View>
                  <TextInput
                    value={values.nombre}
                    style={styles.input}
                    placeholder="Nombre/s"
+                   editable={formState}
+                   selectTextOnFocus={formState}
                    inputContainerStyle={{ borderColor: '#EAEAEA' }}
                    onChangeText={handleChange('nombre')}
                    onBlur={() => setFieldTouched('nombre')}  />
@@ -197,6 +206,8 @@ const PerfilScreen = ({navigation}) => {
                 placeholder="Apellido/s"
                 value={values.apellido}
                 style={styles.input}
+                editable={formState}
+                selectTextOnFocus={formState}
                 inputContainerStyle={{ borderColor: '#EAEAEA' }}
                 onChangeText={handleChange('apellido')}
                  onBlur={() => setFieldTouched('apellido')} 
@@ -248,7 +259,7 @@ const PerfilScreen = ({navigation}) => {
                 {touched.documento && errors.documento &&              
                 <Text style={{ fontSize: 10, color: 'red'}}>{errors.documento}</Text>
               }</View>
-              <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
+              <View style={{flexDirection:'row',   alignItems:'center'}}>
               <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Fecha de nacimiento</Text>
               <TextInputMask
                  style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
@@ -260,12 +271,12 @@ const PerfilScreen = ({navigation}) => {
                   value={nacimiento} 
                   onChangeText={text => { setNacimiento(text)}} />            
               </View>            
-              <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10}}/>
+              <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1,  marginRight:10}}/>
               <View style={{height:12, alignItems:'center'}}>
                 {touched.fecha_nacimiento && errors.fecha_nacimiento &&              
                 <Text style={{ fontSize: 10, color: 'red'}}>{errors.fecha_nacimiento}</Text>
               }</View>
-              <View style={{marginLeft:12}}>
+              <View >
                   <Text style={{fontSize:17, fontFamily:'roboto-light',color:'#AAAAAA'}}>Intereses</Text>
                   <LabelSelect
                   title="INTERESES"
@@ -314,25 +325,14 @@ const PerfilScreen = ({navigation}) => {
                 {touched.confirma_contraseña && errors.confirma_contraseña &&              
                 <Text style={{ fontSize: 10, color: 'red'}}>{errors.confirma_contraseña}</Text>
               }</View>
-                  </View>
-              
-              
+                  </View>          
               <View style={styles.button}>
                   <TouchableOpacity
-                      style={styles.signIn}
-                      onPress={handleSubmit}  >
-                   <LinearGradient
-                      colors={['#323232', '#4a4949']}
                       style={styles.signIn}>
-                      <Text style={[styles.textSign, {
-                          color:'#fff'
-                      }]}>REGISTRARME</Text>
-                  </LinearGradient> 
+                      <Text style={{color:'#323232', fontFamily:'roboto-black',marginTop:20}}>GUARDAR CAMBIOS</Text>
                   </TouchableOpacity>
-                  </View> 
-                 
+                  </View>                  
               </ScrollView>
-          </ImageBackground>
         </View>
         )}
         </Formik>
@@ -344,11 +344,9 @@ export default PerfilScreen;
 const styles = StyleSheet.create({
   container: {
     flex:1,
+    backgroundColor:'#FFF',
+    paddingHorizontal:30
   },
-  cardContainer:{
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-},
   item: {
     flex:1,
    // is 50% of container width
@@ -393,11 +391,16 @@ leftContainer: {
   justifyContent: 'flex-start',
 },
 input:{
-  marginLeft:12,
   fontSize: 16,
   height: 44,
-  width: WIDTH - 55,
   borderBottomColor:'#c1c1c1',
   borderBottomWidth:1,
+},
+header: {
+  flex: 1,
+  paddingTop:50,
+  paddingBottom: 50,
+  alignItems:'center',
+  flexDirection:'row'
 },
 });

@@ -100,7 +100,10 @@ export default function Login(props) {
           </KeyboardAvoidingView>  
           </ScrollView>
           <View style={{}}>
-          <TouchableOpacity onPress={handleSubmit }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
+          <TouchableOpacity onPress={props.navigation.navigate('Main',
+        {
+          usuario: "resp.nombre + resp.apellido",
+        })}   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => props.navigation.navigate('Register') } 

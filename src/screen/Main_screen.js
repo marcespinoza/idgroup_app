@@ -5,7 +5,7 @@ import CuentaScreen from './drawer/Cuentastack.js';
 import RegisterScreen from '../screen/Register_screen.js'
 import DrawerContent from '../screen/DrawerContent.js'
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import PerfilScreen from '../screen/drawer/Perfil.js'
+import PerfilScreen from './drawer/Perfilstack.js'
 
 
 const Drawer = createDrawerNavigator();
@@ -24,10 +24,9 @@ function DrawerScreen  (props) {
 
 
 export default (props) => {
-  const { state} = props.navigation;
 return (
     <NavigationContainer>
-      <DrawerScreen screenProps={{usuario: state.params}}/>
+      <DrawerScreen />
     </NavigationContainer>
 );
 }
