@@ -20,14 +20,24 @@ const DrawerContent = props => {
     retrieveData();
   });
 
-  _openFacebookPage = () => {
+  _openFacebook = () => {
     Linking.openURL('https://www.facebook.com/IDGroupdesarrollosinmobiliarios/');
+    this.props.onPress && this.props.onPress();
+  };
+
+  _openInstagram = () => {
+    Linking.openURL('https://www.instagram.com/inversionesidgroup/');
+    this.props.onPress && this.props.onPress();
+  };
+
+  _openWeb = () => {
+    Linking.openURL('https://www.inversionesidgroup.com/');
     this.props.onPress && this.props.onPress();
   };
 
 const retrieveData = async () => {
     try {
-      const value = await AsyncStorage.getItem("usuario");
+      const value = await AsyncStorage.getItem("nombre");
       if (value !== null) {
         setUsuario(value);
       }
@@ -67,13 +77,35 @@ const retrieveData = async () => {
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <Icon 
-                                name="share-variant" 
+                                name="facebook" 
                                 color={color}
                                 size={size}
                                 />
                             )}
-                            label="Compartir"
-                            onPress={() => {_openFacebookPage()}}
+                            label="Facebook"
+                            onPress={() => {_openFacebook()}}
+                        />
+                        <DrawerItem 
+                            icon={({color, size}) => (
+                                <Icon 
+                                name="instagram" 
+                                color={color}
+                                size={size}
+                                />
+                            )}
+                            label="Instagram"
+                            onPress={() => {_openInstagram()}}
+                        />
+                        <DrawerItem 
+                            icon={({color, size}) => (
+                                <Icon 
+                                name="web" 
+                                color={color}
+                                size={size}
+                                />
+                            )}
+                            label="Web"
+                            onPress={() => {_openWeb()}}
                         />
                          <DrawerItem 
                             icon={({color, size}) => (

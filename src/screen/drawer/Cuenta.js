@@ -1,12 +1,10 @@
 import React, {useState,useEffect} from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Avatar, Button, Title, Paragraph } from 'react-native-paper';
 import {Card, CardItem,Header, Body} from 'native-base';
 import axios from 'axios';
 
-
-const LeftContent = props => <Avatar.Icon {...props} icon="folder" />
 
 const CuentaScreen = ({navigation}) => {
 
@@ -28,6 +26,31 @@ const CuentaScreen = ({navigation}) => {
 
 }
 
+const FlatListItemSeparator = () => {
+  return (
+    <View
+      style={{
+        height: 1,
+        width: "100%",
+        backgroundColor: "#E8E8E8",
+      }}
+    />
+  );
+}
+
+const Country = ({ name }) => (
+  <View style={{flexDirection:'row', flex:1,justifyContent: 'space-between',
+  alignItems: 'center',}}>
+    <Text style={{ flex:1, fontFamily:'roboto-thin'}}>{name}</Text>
+    <Text style={{  flex:1, fontFamily:'roboto-thin'}}>16/07/2020</Text>
+    <View style={{alignItems:'flex-end'}}>
+    <Text style={{ flex:1, fontFamily:'roboto-light' }}>$9.000</Text>
+    </View>
+  </View>
+);
+
+const cuotas = ["Enero", "Febrero", "Marzo", "Abril"];
+
 useEffect(() => {
   // Actualiza el título del documento usando la API del navegador
   getCotizacion()
@@ -36,12 +59,33 @@ useEffect(() => {
     return (
       <View style={styles.container}>
         <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />
+        <Card style={{marginLeft: 5,
+                               marginRight: 5,
+                               marginTop: 5 }}>
+           <View style={styles.cardContainer}> 
+            <View  style={styles.item}>
+            <View style={{alignItem:'center'}}>
+                <Text style={styles.textstyleheader}>PISO</Text>
+                <Text style={styles.textstyle}>4</Text>
+                </View>
+            </View>
+            <View  style={styles.item}>
+              <View style={{alignItem:'center'}}>
+                <Text style={styles.textstyleheader}>UNIDAD</Text>
+                <Text style={styles.textstyle}>403</Text>
+                </View>
+            </View>
+               <View  style={styles.item}>
+               <View style={{alignItem:'center'}}>
+                <Text style={styles.textstyleheader}>DORMITORIOS</Text>
+                <Text style={styles.textstyle}>1</Text>
+                </View>
+            </View>
+            </View>
+        </Card>
          <Card style={{marginLeft: 5,
                                marginRight: 5,
-                               marginTop: 5,
-                               paddingBottom: 10,
-                               borderBottomRightRadius: 12,
-                               borderBottomLeftRadius:12 }}>
+                               paddingBottom: 10}}>
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
@@ -66,6 +110,7 @@ useEffect(() => {
             <Text style={styles.textstyleheader}> VARIACION MENSUAL </Text>
             <Text style={styles.textstyle}> % 25 </Text>
             <View style={{flexDirection:'row', paddingTop:13}}><Text style={styles.cotizacion}>Dolar oficial: US$ {oficial}</Text><Text style={styles.cotizacion}>Dolar blue: US$ {blue}</Text></View>
+            <Text style={{color:'#AEAEAE'}}>Cotización sujeta a modificaciones</Text>
             </View>
             </Card>
             <Card style={styles.navBar}>
@@ -82,6 +127,19 @@ useEffect(() => {
              </View>
               <Text style={{alignSelf:'center', margin:10}}>58</Text>
             </Card>
+            <View style={{ flex: 1 }}>
+              <Card style={{marginLeft: 5,
+                               marginRight: 5,
+                               padding: 5,
+                               borderRadius:4}}>
+                <FlatList
+                    data={cuotas}
+                    initialNumToRender={2}
+                    renderItem={({item}) => <Country name={item} />}
+                    ItemSeparatorComponent = { FlatListItemSeparator }
+                />
+                </Card>
+            </View>
       </View>
     );
 };
@@ -124,7 +182,6 @@ navBar: {
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  borderRadius:20,
   marginLeft:5,
   marginRight:5
 },

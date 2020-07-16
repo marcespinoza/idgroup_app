@@ -29,10 +29,12 @@ export default function Login(props) {
 
   const _onDismissSnackBar = () => setSnack(false);
 
-  const _storeData =async (usuario) => {
+  const _storeData =async (items) => {
     try {
-       var jsonOfItem = await AsyncStorage.setItem("usuario", usuario);
-       return jsonOfItem;
+      //  var jsonOfItem = await AsyncStorage.setItem("usuario", usuario);
+       AsyncStorage.multiSet(items, err => {
+        console.log('Value1' + items);
+      });
     } catch (error) {
        console.log(error.message);
     }
@@ -100,10 +102,13 @@ export default function Login(props) {
           </KeyboardAvoidingView>  
           </ScrollView>
           <View style={{}}>
-          <TouchableOpacity onPress={props.navigation.navigate('Main',
-        {
+          <TouchableOpacity onPress={() => 
+          // handleSubmit()
+            props.navigation.navigate('Main',
+         {
           usuario: "resp.nombre + resp.apellido",
-        })}   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
+         })
+        }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => props.navigation.navigate('Register') } 
@@ -131,14 +136,15 @@ export default function Login(props) {
     .then(function(response) {
       // handle success
       let resp = response.data;
-      _storeData();
       setLoadingState(false);
       if(resp.status==true){
         props.navigation.navigate('Main',
         {
           usuario: resp.nombre + resp.apellido,
         })
-        _storeData(resp.nombre +" "+ resp.apellido)
+        let items = [['nombre', resp.nombre], ['apellido', resp.apellido]];
+
+        _storeData(items)
 
       }else{
         setMensajeError('Usuario/contraseña incorrecto/a')

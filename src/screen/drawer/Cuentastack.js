@@ -17,7 +17,8 @@ const CuentaScreen = ({navigation}) => {
           fontWeight:'100'
         }
       }}>
-        <CuentaStack.Screen name='Cuenta' component={Cuenta} options={{
+        <CuentaStack.Screen 
+          name='Cuenta' component={Cuenta} options={{
           title:'Estado de Cuenta',
           headerLeft:()=>(
             <Icon name='bars' style={{ marginLeft: 10 }}  size={30} backgroundColor='#ffffff'
