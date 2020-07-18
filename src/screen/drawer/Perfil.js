@@ -1,5 +1,5 @@
 import React, {useState,useEffect, useRef} from 'react';
-import { View, Text, StyleSheet, StatusBar, ImageBackground, Animated, Easing, ScrollView, TextInput, TouchableOpacity, Dimensions, Switch} from 'react-native';
+import { View, Text, StyleSheet, StatusBar, AsyncStorage, Animated, Easing, ScrollView, TextInput, TouchableOpacity, Dimensions, Switch} from 'react-native';
 import { Formik } from 'formik'
 import axios from 'axios';
 import * as yup from 'yup';
@@ -17,8 +17,12 @@ const PerfilScreen = ({navigation}) => {
     nombre: '',
     apellido: '',
     documento: '',
-    correo:'',
+    direccion: '',
+    telefono: '',
+    fecha_nacimiento: '',
     interes:'',
+    ocupacion: '',
+    correo:'',
     contraseña:'',
     confirma_contraseña:'',
     check_nametextInputChange: false,
@@ -36,30 +40,55 @@ const PerfilScreen = ({navigation}) => {
     progress:new Animated.Value(0),
 });
 
-    const toggle = React.useCallback(() => {
-      setFormState(formState === false ? true: false);
-    }, [formState, setFormState]);
 
-    const toggleSwitch = () => setFormState(previousState => !previousState);
+  const retrieveData = async () => {
+    AsyncStorage.getAllKeys((err, keys) => {
+      AsyncStorage.multiGet(keys, (err, stores) => {
+       stores.map((result, i, store) => {
+        setData({
+          ...data,
+          apellido: stores[0][1],
+          correo: stores[1][1],    
+          direccion: stores[2][1],
+          documento:stores[3][1],
+          fecha_nacimiento: stores[4][1],
+          interes: stores[5][1],
+          nombre: stores[6][1],
+          ocupacion:stores[7][1],  
+          telefono: stores[8][1]
+      });
+         console.log(stores);
+       });
+      });
+    });
+  }
 
-    const [nacimiento, setNacimiento] = useState('');
-    const [items, setInteres] = useState([]);
-    const [formState, setFormState] = useState(false);
+  const toggle = React.useCallback(() => {
+    setFormState(formState === false ? true: false);
+  }, [formState, setFormState]);
 
-    useEffect(() => {
-        setInteres(opciones);        
-      }, []);
+  const toggleSwitch = () => setFormState(previousState => !previousState);
+
+  const [nacimiento, setNacimiento] = useState('');
+  const [items, setInteres] = useState([]);
+  const [formState, setFormState] = useState(false);
+  const[formValues, setFormValues] = useState(['']['']);
+
+  useEffect(() => {
+     setInteres(opciones);    
+     retrieveData();    
+  }, []);
       
 
-         const selectConfirm=(list)=> {
-            let items2 = [...items];
-            for (let item of list) {
-              let index = items2.findIndex(ele => ele === item);
-              if (~index) items2[index].isSelected = true;
-              else continue;
-            }
-            setInteres(items2)
-          }
+    const selectConfirm=(list)=> {
+       let items2 = [...items];
+         for (let item of list) {
+           let index = items2.findIndex(ele => ele === item);
+             if (~index) items2[index].isSelected = true;
+             else continue;
+         }
+          setInteres(items2)
+       }
 
          const deleteItem=(item)=> {
             let items2 =[...items];
@@ -130,16 +159,17 @@ const PerfilScreen = ({navigation}) => {
     return (
       <Formik
       initialValues={{ 
-        nombre: '',
-        apellido: '',
-        correo:'',
-        ocupacion:'',
-        documento:'',
-        fecha_nacimiento:'',
+        nombre: data.nombre,
+        apellido: data.apellido,
+        correo:data.correo,
+        ocupacion:data.ocupacion,
+        documento:data.documento,
+        fecha_nacimiento:data.fecha_nacimiento,
         interes:'',
         contraseña:'',
         confirma_contraseña:''
       }}
+      enableReinitialize
       innerRef={formRef}
       onSubmit={registro}
       validationSchema={yup.object().shape({
@@ -328,6 +358,7 @@ const PerfilScreen = ({navigation}) => {
                   </View>          
               <View style={styles.button}>
                   <TouchableOpacity
+                      onPress={() => console.log(formValues[0][1]) } 
                       style={styles.signIn}>
                       <Text style={{color:'#323232', fontFamily:'roboto-black',marginTop:20}}>GUARDAR CAMBIOS</Text>
                   </TouchableOpacity>

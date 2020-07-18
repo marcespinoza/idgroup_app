@@ -7,7 +7,7 @@ import { Snackbar,DefaultTheme,  } from 'react-native-paper';
 import * as yup from 'yup'
 import { Formik } from 'formik'
 
-const {width: WIDTH} = Dimensions.get('window')
+const { width, height } = Dimensions.get('window')
 const screenHeight = Math.round(Dimensions.get('window').height);
 const windowHeight = Dimensions.get('window').height;
 
@@ -33,7 +33,6 @@ export default function Login(props) {
     try {
       //  var jsonOfItem = await AsyncStorage.setItem("usuario", usuario);
        AsyncStorage.multiSet(items, err => {
-        console.log('Value1' + items);
       });
     } catch (error) {
        console.log(error.message);
@@ -63,13 +62,7 @@ export default function Login(props) {
         <ScrollView>
           <KeyboardAvoidingView  behavior='padding' style={styles.container}>  
        <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>
-       <Snackbar
-          visible={showsnack}
-           onDismiss={_onDismissSnackBar}
-          duration={3000}
-          style={styles.snack} >
-            {mensaje_error}
-        </Snackbar>
+       
           <Image style={styles.imagen} source={require('../../Images/id_group.png')} />    
         
              <View style={styles.logoContainer}>
@@ -103,11 +96,11 @@ export default function Login(props) {
           </ScrollView>
           <View style={{}}>
           <TouchableOpacity onPress={() => 
-          // handleSubmit()
-            props.navigation.navigate('Main',
-         {
-          usuario: "resp.nombre + resp.apellido",
-         })
+           handleSubmit()
+        //     props.navigation.navigate('Main',
+        //  {
+        //   usuario: "resp.nombre + resp.apellido",
+        //  })
         }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
@@ -115,6 +108,13 @@ export default function Login(props) {
               style={data.usuario == '' || data.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
               <Text style={{color:'#323232', fontFamily:'roboto-medium'}}> REGISTRARME </Text>
           </TouchableOpacity>
+          <Snackbar
+          visible={showsnack}
+           onDismiss={_onDismissSnackBar}
+          duration={3000}
+          style={styles.snack} >
+            {mensaje_error}
+        </Snackbar>
           </View>
           </View>
            )}
@@ -142,7 +142,9 @@ export default function Login(props) {
         {
           usuario: resp.nombre + resp.apellido,
         })
-        let items = [['nombre', resp.nombre], ['apellido', resp.apellido]];
+        let items = [['nombre', resp.nombre], ['apellido', resp.apellido], ['documento', resp.documento], ['direccion', resp.direccion]
+        , ['telefono', resp.telefono], ['fecha_nacimiento', resp.fecha_nacimiento], ['interes', resp.interes], ['ocupacion', resp.ocupacion]
+        , ['correo', resp.correo]];
 
         _storeData(items)
 
@@ -172,7 +174,8 @@ export default function Login(props) {
     },
     snack:{
       color:'#ffffff',
-      backgroundColor:'#D44942'
+      backgroundColor:'#D44942',
+      alignSelf:'center'
     },
     text_input:{
       left:0,
@@ -183,7 +186,7 @@ export default function Login(props) {
       color:'#ffffff',
     },
     logoContainer:{
-      marginTop:20,
+      marginTop:height*0.1,
     },
     logoContainer2:{
     },
@@ -197,7 +200,7 @@ export default function Login(props) {
       fontSize: 16,
       paddingLeft:45,
       height: 44,
-      width: WIDTH - 55,
+      width: width - 55,
       borderBottomColor:'#c1c1c1',
       borderBottomWidth:1,
     },
@@ -214,7 +217,7 @@ export default function Login(props) {
       justifyContent:'center',
       alignSelf:'center',
       height: 44,
-      width: WIDTH - 125,
+      width: width - 125,
       backgroundColor:'#323232',
       padding:20,
       borderRadius:25,
@@ -226,7 +229,7 @@ export default function Login(props) {
     justifyContent:'center',
     alignSelf:'center',
     height: 44,
-    width: WIDTH - 55,
+    width: width - 55,
     padding:10,
     bottom:5
  },
@@ -235,7 +238,7 @@ export default function Login(props) {
     justifyContent:'center',
     alignSelf:'center',
     height: 44,
-    width: WIDTH - 55,
+    width: width - 55,
     backgroundColor:'#c1c1c1',
     padding:10,
     borderRadius:25,
