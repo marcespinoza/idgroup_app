@@ -31,7 +31,7 @@ export default function Login(props) {
 
   const _storeData =async (items) => {
     try {
-      //  var jsonOfItem = await AsyncStorage.setItem("usuario", usuario);
+    
        AsyncStorage.multiSet(items, err => {
       });
     } catch (error) {
@@ -83,7 +83,7 @@ export default function Login(props) {
           <View style={styles.logoContainer2}>
              <Icon name="lock" size={25} color="#000000" style={styles.inputIcon}/>
              <TextInput   value={values.clave}
-             style={styles.input}
+              style={styles.input}
               onChangeText={handleChange('clave')}
               onBlur={() => setFieldTouched('clave')}
               placeholder="Contraseña"/>              
@@ -96,11 +96,11 @@ export default function Login(props) {
           </ScrollView>
           <View style={{}}>
           <TouchableOpacity onPress={() => 
-           handleSubmit()
-        //     props.navigation.navigate('Main',
+            handleSubmit()
+        //      props.navigation.navigate('Main',
         //  {
         //   usuario: "resp.nombre + resp.apellido",
-        //  })
+        //   })
         }   style={data.usuario == '' || data.contraseña == '' ? styles.buttonLogin : styles.buttonLogin }>
               <Text style={styles.setColorWhite}> INICIAR SESIÓN </Text>
           </TouchableOpacity>
@@ -144,7 +144,8 @@ export default function Login(props) {
         })
         let items = [['nombre', resp.nombre], ['apellido', resp.apellido], ['documento', resp.documento], ['direccion', resp.direccion]
         , ['telefono', resp.telefono], ['fecha_nacimiento', resp.fecha_nacimiento], ['interes', resp.interes], ['ocupacion', resp.ocupacion]
-        , ['correo', resp.correo]];
+        , ['correo', resp.correo],['idcontrol',  resp.idcliente]];
+        console.log(items);
 
         _storeData(items)
 
@@ -160,9 +161,7 @@ export default function Login(props) {
       console.log(error)
      }.bind(this));
     
-    }
-
- 
+    } 
 }    
 
 
@@ -186,7 +185,7 @@ export default function Login(props) {
       color:'#ffffff',
     },
     logoContainer:{
-      marginTop:height*0.1,
+      marginTop:height*0.07,
     },
     logoContainer2:{
     },
@@ -208,6 +207,7 @@ export default function Login(props) {
     imagen:{
       width: 200,
       height:200,
+      marginTop:height*0.07,
       resizeMode: 'contain',
       alignSelf:'center',
       transform: [{ scale: 0.85 }]

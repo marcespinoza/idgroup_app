@@ -55,7 +55,8 @@ const PerfilScreen = ({navigation}) => {
           interes: stores[5][1],
           nombre: stores[6][1],
           ocupacion:stores[7][1],  
-          telefono: stores[8][1]
+          telefono: stores[8][1],
+          idcontrol: stores[9][1]
       });
          console.log(stores);
        });

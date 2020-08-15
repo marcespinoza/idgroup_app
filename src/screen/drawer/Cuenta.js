@@ -1,7 +1,6 @@
 import React, {useState,useEffect} from 'react';
-import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
-import { useTheme } from '@react-navigation/native';
-import { Avatar, Button, Title, Paragraph } from 'react-native-paper';
+import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage} from 'react-native';
+import Loader from './../../utils/Loader'
 import {Card, CardItem,Header, Body} from 'native-base';
 import axios from 'axios';
 
@@ -10,6 +9,28 @@ const CuentaScreen = ({navigation}) => {
 
   const [oficial, setOficial] = useState("");
   const [blue, setBlue] = useState("");
+  const [cuotas, setCuotas] = useState([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [unidad, setUnidad]= useState({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
+  const [proxCuota, setProxCuota] = useState([])
+
+  const wait = (timeout) => {
+    return new Promise(resolve => {
+      setTimeout(resolve, timeout);
+    });
+  }
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+  const [data, setData] = React.useState({
+    idcliente: '',
+    showDropDown: false,
+    loading: false,
+    modal_:false,
+});
 
   async function getCotizacion() {
     const URL = 'https://www.dolarsi.com/api/api.php?type=valoresprincipales';
@@ -26,6 +47,63 @@ const CuentaScreen = ({navigation}) => {
 
 }
 
+const retrieveData = async () => {
+  AsyncStorage.getAllKeys((err, keys) => {
+    AsyncStorage.multiGet(keys, (err, stores) => {
+     stores.map((result, i, store) => {
+      console.log("SOTRE "+stores);
+
+      setData({
+        ...data,
+        idcliente: stores[5][1],
+    });
+     });
+    });
+  });
+}
+
+let unidadfuncional = "http://admidgroup.com/api_rest/index.php/api/unidadporcliente";
+let cuota = "http://admidgroup.com/api_rest/index.php/api/cuotasporcliente";
+let prox_cuota = "http://admidgroup.com/api_rest/index.php/api/proximacuota";
+
+var config = {
+  idcliente: '79',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      "Access-Control-Allow-Headers":"X-Requested-With"
+     },}
+
+const requestOne = axios.post(unidadfuncional, config);
+const requestTwo = axios.post(cuota, config);
+const requestThree = axios.post(prox_cuota, config);
+const [loading,setLoadingState] = useState(false);
+
+const getCuotas = async(id_cli) =>{
+
+setLoadingState(true);
+
+setUnidad({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
+setCuotas([]);
+axios.all([requestOne, requestTwo, requestThree])
+.then(
+axios.spread((...responses) => {
+   setUnidad(responses[0].data.unidad[0])
+   setCuotas(responses[1].data.cuotas)    
+   setProxCuota(responses[2].data.estado[0])
+   console.log("CUOTA "+proxCuota.abonadas)
+  // setVariacion(responses[2].data.variaciones[0].valor);
+  // setMoneda(responses[1].data.cuotas[0].moneda)
+  setLoadingState(false);
+
+})
+)
+.catch(errors => {
+  setLoadingState(false);
+
+console.error("ERRORES "+errors);
+});
+}  
+
 const FlatListItemSeparator = () => {
   return (
     <View
@@ -38,26 +116,35 @@ const FlatListItemSeparator = () => {
   );
 }
 
-const Country = ({ name }) => (
+const Cuota = ({ name }) => (
   <View style={{flexDirection:'row', flex:1,justifyContent: 'space-between',
   alignItems: 'center',}}>
-    <Text style={{ flex:1, fontFamily:'roboto-thin'}}>{name}</Text>
-    <Text style={{  flex:1, fontFamily:'roboto-thin'}}>16/07/2020</Text>
+    <Text style={{ flex:1, fontFamily:'roboto-thin'}}>{name.numero}</Text>
+   <Text style={{  flex:1, fontFamily:'roboto-thin'}}>{name.fecha}</Text>
     <View style={{alignItems:'flex-end'}}>
-    <Text style={{ flex:1, fontFamily:'roboto-light' }}>$9.000</Text>
+<Text style={{ flex:1, fontFamily:'roboto-light' }}>{name.monto}</Text>
     </View>
   </View>
 );
 
-const cuotas = ["Enero", "Febrero", "Marzo", "Abril"];
+const cuot = ["Enero", "Febrero", "Marzo", "Abril"];
 
 useEffect(() => {
   // Actualiza el título del documento usando la API del navegador
-  getCotizacion()
-});
+  getCotizacion(),
+  retrieveData(),
+  getCuotas()
+},[]);
   
     return (
       <View style={styles.container}>
+         <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>
+        <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />
         <Card style={{marginLeft: 5,
                                marginRight: 5,
@@ -65,20 +152,20 @@ useEffect(() => {
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
-                <Text style={styles.textstyleheader}>PISO</Text>
-                <Text style={styles.textstyle}>4</Text>
+                <Text style={styles.textstyleheader}>UBICACION</Text>
+        <Text style={styles.textstyle}>{unidad.ubicacion}</Text>
                 </View>
             </View>
             <View  style={styles.item}>
               <View style={{alignItem:'center'}}>
                 <Text style={styles.textstyleheader}>UNIDAD</Text>
-                <Text style={styles.textstyle}>403</Text>
+        <Text style={styles.textstyle}>{unidad.unidad}</Text>
                 </View>
             </View>
                <View  style={styles.item}>
                <View style={{alignItem:'center'}}>
                 <Text style={styles.textstyleheader}>DORMITORIOS</Text>
-                <Text style={styles.textstyle}>1</Text>
+        <Text style={styles.textstyle}>{unidad.dormitorios}</Text>
                 </View>
             </View>
             </View>
@@ -118,14 +205,14 @@ useEffect(() => {
             <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/check.png')} />
             <Text style={{ alignSelf:'center'}}>CUOTAS ABONADAS</Text>
              </View>
-              <Text style={{alignSelf:'center', margin:10}}>58</Text>
+              <Text style={{alignSelf:'center', margin:10}}>{proxCuota.abonadas}</Text>
             </Card>
             <Card style={styles.navBar}>
             <View style={styles.leftContainer}>
             <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/close.png')} />
             <Text style={{ alignSelf:'center'}}>CUOTAS RESTANTES</Text>
              </View>
-              <Text style={{alignSelf:'center', margin:10}}>58</Text>
+         <Text style={{alignSelf:'center', margin:10}}>{proxCuota.cant_cuotas - proxCuota.abonadas}</Text>
             </Card>
             <View style={{ flex: 1 }}>
               <Card style={{marginLeft: 5,
@@ -135,11 +222,12 @@ useEffect(() => {
                 <FlatList
                     data={cuotas}
                     initialNumToRender={2}
-                    renderItem={({item}) => <Country name={item} />}
+                    renderItem={({item}) => <Cuota name={item} />}
                     ItemSeparatorComponent = { FlatListItemSeparator }
                 />
                 </Card>
             </View>
+          </ScrollView>
       </View>
     );
 };
