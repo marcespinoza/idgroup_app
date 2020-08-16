@@ -9,7 +9,7 @@ const CuentaScreen = ({navigation}) => {
 
   const [oficial, setOficial] = useState("");
   const [blue, setBlue] = useState("");
-  const [cuotas, setCuotas] = useState([]);
+  const [cuotas, setCuotas] = useState({total:""});
   const [refreshing, setRefreshing] = React.useState(false);
   const [unidad, setUnidad]= useState({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
   const [proxCuota, setProxCuota] = useState([])
@@ -65,7 +65,7 @@ let cuota = "http://admidgroup.com/api_rest/index.php/api/cuotasporcliente";
 let prox_cuota = "http://admidgroup.com/api_rest/index.php/api/proximacuota";
 
 var config = {
-  idcliente: '79',
+  idcliente: '74',
     headers: {
       'Access-Control-Allow-Origin': '*',
       "Access-Control-Allow-Headers":"X-Requested-With"
@@ -92,7 +92,7 @@ axios.spread((...responses) => {
   // setMoneda(responses[1].data.cuotas[0].moneda)
   conversion()
   setLoadingState(false);
-  
+  console.log(cuotas+"+++")
 })
 )
 .catch(errors => {
@@ -107,9 +107,9 @@ const conversion = ()=>{
 
   if(proxCuota.moneda==0){
     var conv = (proxCuota.variacion * proxCuota.valor_cuota)/100
-    console.log("CONV "+conv)
     conv = conv + Number.parseInt( proxCuota.valor_cuota, 10)    
     setNuevaCuota(conv)
+    setValorDolar(conv)
   }else{
     setNuevaCuota(proxCuota.valor_cuota)
   }
@@ -196,8 +196,8 @@ useEffect(() => {
                <View  style={styles.item}>
                <View style={{alignItem:'center'}}>
                <Text style={styles.textstyleheader}>MONTO</Text>
-               <View>
-                <Text style={styles.textstyle}>{proxCuota.moneda==1 ? '$$': '$'}</Text>
+               <View style={{flexDirection:'row', flex:1, flexWrap:'wrap', justifyContent:'center'}}>
+                <Text style={styles.textstyle}>{proxCuota.moneda==1 ? '$$ ': '$ '}</Text>
                <Text style={styles.textstyle}>{nuevaCuota}</Text>
                </View>
                </View>
@@ -249,7 +249,7 @@ useEffect(() => {
                     ItemSeparatorComponent = { FlatListItemSeparator }
                 />
                 </Card>
-            </View>
+            </View> 
           </ScrollView>
       </View>
     );
