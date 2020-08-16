@@ -13,7 +13,8 @@ const CuentaScreen = ({navigation}) => {
   const [refreshing, setRefreshing] = React.useState(false);
   const [unidad, setUnidad]= useState({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
   const [proxCuota, setProxCuota] = useState([])
-
+  const [valorDolar, setValorDolar] = useState('-')
+  const [nuevaCuota, setNuevaCuota] = useState('')
   const wait = (timeout) => {
     return new Promise(resolve => {
       setTimeout(resolve, timeout);
@@ -21,8 +22,7 @@ const CuentaScreen = ({navigation}) => {
   }
 
   const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-
+    setRefreshing(true); 
     wait(2000).then(() => setRefreshing(false));
   }, []);
   const [data, setData] = React.useState({
@@ -30,7 +30,7 @@ const CuentaScreen = ({navigation}) => {
     showDropDown: false,
     loading: false,
     modal_:false,
-});
+  });
 
   async function getCotizacion() {
     const URL = 'https://www.dolarsi.com/api/api.php?type=valoresprincipales';
@@ -51,8 +51,6 @@ const retrieveData = async () => {
   AsyncStorage.getAllKeys((err, keys) => {
     AsyncStorage.multiGet(keys, (err, stores) => {
      stores.map((result, i, store) => {
-      console.log("SOTRE "+stores);
-
       setData({
         ...data,
         idcliente: stores[5][1],
@@ -87,22 +85,35 @@ setCuotas([]);
 axios.all([requestOne, requestTwo, requestThree])
 .then(
 axios.spread((...responses) => {
-   setUnidad(responses[0].data.unidad[0])
-   setCuotas(responses[1].data.cuotas)    
-   setProxCuota(responses[2].data.estado[0])
-   console.log("CUOTA "+proxCuota.abonadas)
+  setUnidad(responses[0].data.unidad[0])
+  setCuotas(responses[1].data.cuotas)    
+  setProxCuota(responses[2].data.estado[0])
   // setVariacion(responses[2].data.variaciones[0].valor);
   // setMoneda(responses[1].data.cuotas[0].moneda)
+  conversion()
   setLoadingState(false);
-
+  
 })
 )
 .catch(errors => {
   setLoadingState(false);
 
-console.error("ERRORES "+errors);
+  console.error("ERRORES "+errors);
 });
 }  
+
+const conversion = ()=>{
+  console.log("CONV "+proxCuota.moneda)
+
+  if(proxCuota.moneda==0){
+    var conv = (proxCuota.variacion * proxCuota.valor_cuota)/100
+    console.log("CONV "+conv)
+    conv = conv + Number.parseInt( proxCuota.valor_cuota, 10)    
+    setNuevaCuota(conv)
+  }else{
+    setNuevaCuota(proxCuota.valor_cuota)
+  }
+}
 
 const FlatListItemSeparator = () => {
   return (
@@ -146,9 +157,7 @@ useEffect(() => {
         }
       >
         <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />
-        <Card style={{marginLeft: 5,
-                               marginRight: 5,
-                               marginTop: 5 }}>
+        <Card style={{marginLeft: 5, marginRight: 5, marginTop: 10 }}>
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
@@ -170,32 +179,46 @@ useEffect(() => {
             </View>
             </View>
         </Card>
-         <Card style={{marginLeft: 5,
-                               marginRight: 5,
-                               paddingBottom: 10}}>
+         <Card style={{marginLeft: 5,marginRight: 5, paddingBottom: 10}}>
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
-                <Text style={styles.textstyleheader}>MES</Text>
-                <Text style={styles.textstyle}>Junio</Text>
-                </View>
+               <Text style={styles.textstyleheader}>MES</Text>
+              <Text style={styles.textstyle}>Junio</Text>
+              </View>
             </View>
             <View  style={styles.item}>
               <View style={{alignItem:'center'}}>
-                <Text style={styles.textstyleheader}>CUOTA</Text>
-                <Text style={styles.textstyle}>1</Text>
+              <Text style={styles.textstyleheader}>CUOTA</Text>
+              <Text style={styles.textstyle} >{proxCuota.prox_cuota}</Text>
                 </View>
             </View>
                <View  style={styles.item}>
                <View style={{alignItem:'center'}}>
-                <Text style={styles.textstyleheader}>MONTO</Text>
-                <Text style={styles.textstyle}>$9.000</Text>
-                </View>
+               <Text style={styles.textstyleheader}>MONTO</Text>
+               <View>
+                <Text style={styles.textstyle}>{proxCuota.moneda==1 ? '$$': '$'}</Text>
+               <Text style={styles.textstyle}>{nuevaCuota}</Text>
+               </View>
+               </View>
             </View>
             </View>
             <View style={{borderTopColor: '#20b1e8', borderTopWidth: 1, marginLeft:20, marginRight:20}}>
+            <View style={styles.cardContainer}> 
+            <View  style={styles.item}>
+            <View style={{alignItem:'center'}}>
             <Text style={styles.textstyleheader}> VARIACION MENSUAL </Text>
-            <Text style={styles.textstyle}> % 25 </Text>
+            <Text style={styles.textstyle}> % {proxCuota.variacion} </Text>
+            </View>
+            </View>
+            <View  style={styles.item}>
+             <View style={{alignItem:'center'}}>
+             <Text style={styles.textstyleheader}>EQUIVALENTE</Text>
+             <Text style={styles.textstyle}>$${valorDolar}</Text>
+             </View>
+            </View>
+            </View>
+
             <View style={{flexDirection:'row', paddingTop:13}}><Text style={styles.cotizacion}>Dolar oficial: US$ {oficial}</Text><Text style={styles.cotizacion}>Dolar blue: US$ {blue}</Text></View>
             <Text style={{color:'#AEAEAE'}}>Cotización sujeta a modificaciones</Text>
             </View>
@@ -211,8 +234,8 @@ useEffect(() => {
             <View style={styles.leftContainer}>
             <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/close.png')} />
             <Text style={{ alignSelf:'center'}}>CUOTAS RESTANTES</Text>
-             </View>
-         <Text style={{alignSelf:'center', margin:10}}>{proxCuota.cant_cuotas - proxCuota.abonadas}</Text>
+            </View>
+            <Text style={{alignSelf:'center', margin:10}}>{proxCuota.cant_cuotas - proxCuota.abonadas}</Text>
             </Card>
             <View style={{ flex: 1 }}>
               <Card style={{marginLeft: 5,
