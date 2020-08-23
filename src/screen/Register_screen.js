@@ -46,7 +46,7 @@ const RegisterScreen = ({navigation}) => {
         apellido: '',
         documento: '',
         correo:'',
-        interes:'',
+        interes:[],
         contraseña:'',
         confirma_contraseña:'',
         check_nametextInputChange: false,
@@ -86,6 +86,7 @@ const RegisterScreen = ({navigation}) => {
 
 
    async function registro() {
+     console.log("INTERES "+items[0].isSelected, items[1].isSelected)
         const URL = 'http://admidgroup.com/api_rest/index.php/api/cliente';
         setData({
             ...data,
@@ -126,27 +127,35 @@ const RegisterScreen = ({navigation}) => {
     }
 
     const [nacimiento, setNacimiento] = useState('');
+    const [fechaOcupacion, setFechaOcupacion] = useState('');
     const [statemodal, showModal] = useState(false);
     const [items, setInteres] = useState([]);
     useEffect(() => {
         // Should not ever set state during rendering, so do this in useEffect instead.
         setInteres(opciones);
         
-      }, []);
-      
+      }, []);      
 
          const selectConfirm=(list)=> {
             let items2 = [...items];
+            let seleccionados = [];
             for (let item of list) {
               let index = items2.findIndex(ele => ele === item);
-              if (~index) items2[index].isSelected = true;
-              else continue;
+              if (~index)
+                items2[index].isSelected = true;              
+               else continue;
             }
+            for (let item of items2) {
+              if(item.isSelected){
+                console.log("SELECTS "+item.name+" "+item.isSelected) 
+                seleccionados=item 
+              }              
+            }            
             setInteres(items2)
           }
 
          const deleteItem=(item)=> {
-            let items2 =[...items];
+            let items2 =[...items]; 
             let index = items2.findIndex(a => a === item);
             items2[index].isSelected = false;
             setInteres(items2);
@@ -168,6 +177,7 @@ const RegisterScreen = ({navigation}) => {
       nombre: '',
       apellido: '',
       correo:'',
+      direccion:'',
       ocupacion:'',
       documento:'',
       fecha_nacimiento:'',
@@ -182,6 +192,9 @@ const RegisterScreen = ({navigation}) => {
         .string()
         .required('Este campo es obligatorio'),
         apellido: yup
+        .string() 
+        .required('Este campo es obligatorio'),
+        direccion: yup
         .string() 
         .required('Este campo es obligatorio'),
         correo: yup
@@ -298,6 +311,7 @@ const RegisterScreen = ({navigation}) => {
               {touched.apellido && errors.apellido &&              
               <Text style={{ fontSize: 10, color: 'red'}}>{errors.apellido}</Text>
             }</View>
+            {/*------Correo----------*/}
             <View >
             <TextInput
             placeholder="Correo"
@@ -306,6 +320,20 @@ const RegisterScreen = ({navigation}) => {
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
             onChangeText={handleChange('correo')}
                onBlur={() => setFieldTouched('correo')} />
+            </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.correo && errors.correo &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.correo}</Text>
+            }</View>
+            {/*------Dirección------------*/}
+            <View >
+            <TextInput
+            placeholder="Dirección"
+            value={values.correo}
+            style={styles.input}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
+            onChangeText={handleChange('direccion')}
+               onBlur={() => setFieldTouched('direccion')} />
             </View>
             <View style={{height:12, alignItems:'center'}}>
               {touched.correo && errors.correo &&              
@@ -325,6 +353,20 @@ const RegisterScreen = ({navigation}) => {
               {touched.ocupacion && errors.ocupacion &&              
               <Text style={{ fontSize: 10, color: 'red'}}>{errors.ocupacion}</Text>
             }</View>
+            {/*--------Fecha ocupacion----------*/}
+            <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
+            <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Celebración ocupación</Text>
+            <TextInputMask
+               style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
+                type={'datetime'}
+                placeholder='DD-MM-YYYY'
+                options={{
+                    format: 'DD-MM-YYYY'
+                  }}
+                value={fechaOcupacion} 
+                onChangeText={text => { setFechaOcupacion(text)}} />            
+            </View>            
+            <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1.2, marginLeft:10, marginRight:10}}/>
             <View >
             <TextInput
             placeholder="Documento"
@@ -340,6 +382,7 @@ const RegisterScreen = ({navigation}) => {
               {touched.documento && errors.documento &&              
               <Text style={{ fontSize: 10, color: 'red'}}>{errors.documento}</Text>
             }</View>
+            {/*--------Fecha nacimiento----------*/}
             <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
             <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Fecha de nacimiento</Text>
             <TextInputMask
@@ -352,14 +395,14 @@ const RegisterScreen = ({navigation}) => {
                 value={nacimiento} 
                 onChangeText={text => { setNacimiento(text)}} />            
             </View>            
-            <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1, marginLeft:10, marginRight:10}}/>
+            <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1.2, marginLeft:10, marginRight:10}}/>
             <View style={{height:12, alignItems:'center'}}>
               {touched.fecha_nacimiento && errors.fecha_nacimiento &&              
               <Text style={{ fontSize: 10, color: 'red'}}>{errors.fecha_nacimiento}</Text>
             }</View>
             <View style={{marginLeft:12}}>
-                <Text style={{fontSize:17, fontFamily:'roboto-light',color:'#AAAAAA'}}>Intereses</Text>
-                <LabelSelect
+              <Text style={{fontSize:17, fontFamily:'roboto-light',color:'#AAAAAA'}}>Intereses</Text>
+              <LabelSelect
                 title="INTERESES"
                 onConfirm={selectConfirm}>
 

@@ -1,20 +1,31 @@
 import React, {useState,useEffect} from 'react';
 import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage} from 'react-native';
 import Loader from './../../utils/Loader'
-import {Card, CardItem,Header, Body} from 'native-base';
+import {Card, Container, Header, Content, Picker, Form } from 'native-base';
 import axios from 'axios';
+import RNPicker from 'rn-modal-picker'
+
 
 
 const CuentaScreen = ({navigation}) => {
 
   const [oficial, setOficial] = useState("");
   const [blue, setBlue] = useState("");
-  const [cuotas, setCuotas] = useState({total:""});
+  const [cuotas, setCuotas] = useState([]);
   const [refreshing, setRefreshing] = React.useState(false);
   const [unidad, setUnidad]= useState({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
+  const [unidades, setUnidades] = useState([]);
   const [proxCuota, setProxCuota] = useState([])
-  const [valorDolar, setValorDolar] = useState('-')
+  const [valorPesos, setValorPesos] = useState('-')
   const [nuevaCuota, setNuevaCuota] = useState('')
+  const [idUnidad, setidUnidad] = useState('')
+  const [nombreUnidad, setNombreUnidad] = useState('')
+  const [mesCuota, setMesCuota] = useState('-')
+  const [visible, setVisible] = React.useState(false);
+
+  const openMenu = () => setVisible(true);
+
+  const closeMenu = () => setVisible(false);
   const wait = (timeout) => {
     return new Promise(resolve => {
       setTimeout(resolve, timeout);
@@ -60,24 +71,51 @@ const retrieveData = async () => {
   });
 }
 
+async function obtenerUnidades() {
+     const URL = 'http://admidgroup.com/api_rest/index.php/api/unidadesporcliente';
+     setData({
+         ...data,
+         loading:true
+     });
+     axios.post(URL, {
+     idcliente: data.idcliente,
+   })
+   .then(function(response) {
+     // handle success
+     let resp = response.data;
+     setUnidades(response.data.unidad)
+   }.bind(this))
+   .catch(function(error) {
+    }.bind(this)); 
+ }
+
+
 let unidadfuncional = "http://admidgroup.com/api_rest/index.php/api/unidadporcliente";
 let cuota = "http://admidgroup.com/api_rest/index.php/api/cuotasporcliente";
 let prox_cuota = "http://admidgroup.com/api_rest/index.php/api/proximacuota";
 
 var config = {
-  idcliente: '74',
+  idcliente: data.idcliente,
     headers: {
       'Access-Control-Allow-Origin': '*',
       "Access-Control-Allow-Headers":"X-Requested-With"
-     },}
+     },
+    }
 
-const requestOne = axios.post(unidadfuncional, config);
-const requestTwo = axios.post(cuota, config);
-const requestThree = axios.post(prox_cuota, config);
+ var config2 = {
+   idunidad: idUnidad,
+     headers: {
+      'Access-Control-Allow-Origin': '*',
+      "Access-Control-Allow-Headers":"X-Requested-With"
+      },
+    }
+
+const requestOne = axios.post(unidadfuncional, config2);
+const requestTwo = axios.post(cuota, config2);
+const requestThree = axios.post(prox_cuota, config2);
 const [loading,setLoadingState] = useState(false);
 
-const getCuotas = async(id_cli) =>{
-
+const getCuotas = async() =>{
 setLoadingState(true);
 
 setUnidad({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
@@ -90,26 +128,63 @@ axios.spread((...responses) => {
   setProxCuota(responses[2].data.estado[0])
   // setVariacion(responses[2].data.variaciones[0].valor);
   // setMoneda(responses[1].data.cuotas[0].moneda)
-  conversion()
   setLoadingState(false);
-  console.log(cuotas+"+++")
+  
 })
 )
 .catch(errors => {
   setLoadingState(false);
-
   console.error("ERRORES "+errors);
 });
 }  
 
-const conversion = ()=>{
-  console.log("CONV "+proxCuota.moneda)
+const conversion = ()=>{ 
+  switch(proxCuota.mes) { 
+    case '1':
+      setMesCuota('FEBRERO');break;
+    case '2':
+      setMesCuota('MARZO');break;
+    case '3':
+      setMesCuota('ABRIL');break;
+    case '4':
+      setMesCuota('MAYO');break;
+    case '5':
+      setMesCuota('JUNIO');break;  
+    case '6':
+      setMesCuota('JULIO');break;   
+    case '7':
+      setMesCuota('AGOSTO');break;
+    case '8':
+      setMesCuota('SEPTIEMBRE');break;
+    case '9':
+      setMesCuota('OCTUBRE');break;
+    case '10':
+      setMesCuota('NOVIEMBRE');break;
+    case '11':
+      setMesCuota('DICIEMBRE');break;
+     case '12':
+      setMesCuota('ENERO');break;
 
+    default:
+      setMesCuota('-');
+  
+    }
   if(proxCuota.moneda==0){
-    var conv = (proxCuota.variacion * proxCuota.valor_cuota)/100
-    conv = conv + Number.parseInt( proxCuota.valor_cuota, 10)    
-    setNuevaCuota(conv)
-    setValorDolar(conv)
+    //---------Obtengo la ultima cuota para calcular la proxima de acuerdo a la variacion  
+  if(cuotas.length>0){
+    cuotas.find(function(value, index) {
+      if (index == cuotas.length-1) {
+        Object.entries(value).map(([key,v])=>{        
+          if(key==='monto'){
+            var conv = ((proxCuota.variacion * v)/100).toFixed(2)
+            conv = (Number(conv) +  parseFloat(v))
+            setNuevaCuota(conv)
+          }
+      })
+      }
+    });
+  }
+    setValorPesos('-')
   }else{
     setNuevaCuota(proxCuota.valor_cuota)
   }
@@ -127,43 +202,86 @@ const FlatListItemSeparator = () => {
   );
 }
 
-const Cuota = ({ name }) => (
+useEffect(() => {
+  if(Object.keys(proxCuota).length >0){
+  conversion()
+  }
+},[proxCuota]);
+
+useEffect(() => {
+  if(idUnidad!=''){
+    getCuotas()
+  }
+},[idUnidad]);
+
+const handleUnidad = (index, item) =>{
+  setidUnidad(item.id)
+  setNombreUnidad(item.name)
+}
+
+const Cuota = ({ name, color }) => (
   <View style={{flexDirection:'row', flex:1,justifyContent: 'space-between',
-  alignItems: 'center',}}>
-    <Text style={{ flex:1, fontFamily:'roboto-thin'}}>{name.numero}</Text>
+  alignItems: 'center', backgroundColor:color}}>
+   <Text style={{ flex:1, fontFamily:'roboto-medium', color:'#099BBF'}}>{name.numero}</Text>
+   <Text style={{ flex:1, fontFamily:'roboto-thin'}}>{name.observacion}</Text>
    <Text style={{  flex:1, fontFamily:'roboto-thin'}}>{name.fecha}</Text>
-    <View style={{alignItems:'flex-end'}}>
-<Text style={{ flex:1, fontFamily:'roboto-light' }}>{name.monto}</Text>
+   <View style={{alignItems:'flex-end'}}>
+   <Text style={{ flex:1, fontFamily:'roboto-light' }}>{name.monto}</Text>
     </View>
   </View>
 );
 
-const cuot = ["Enero", "Febrero", "Marzo", "Abril"];
+useEffect(() => {
+  retrieveData()
+},[]);  
 
 useEffect(() => {
-  // Actualiza el título del documento usando la API del navegador
-  getCotizacion(),
-  retrieveData(),
-  getCuotas()
-},[]);
-  
+  conversion()
+},[cuotas]);  
+
+useEffect(()=>{
+  obtenerUnidades()
+  getCotizacion()
+},[data.idcliente])
+
     return (
       <View style={styles.container}>
-         <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>
+         <Loader  loading={loading} mensaje={'Espere por favor..'}/>
         <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />
-        <Card style={{marginLeft: 5, marginRight: 5, marginTop: 10 }}>
+        <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />   
+        <View style={{marginTop:5}}>
+          <RNPicker
+          dataSource={unidades}
+          dummyDataSource={unidades}
+          placeHolderLabel= "Seleccione una unidad"
+          defaultValue={false}
+          pickerTitle="Seleccione una unidad"
+          showSearchBar={false}
+          disablePicker={false}
+          changeAnimation={"none"}
+          searchBarPlaceHolder={"Search....."}
+          showPickerTitle={true}
+          selectedLabel={nombreUnidad}
+          selectLabelTextStyle={styles.selectLabelTextStyle}
+          placeHolderTextStyle={styles.placeHolderTextStyle}
+          dropDownImageStyle={styles.dropDownImageStyle}
+          pickerStyle={styles.pickerStyle}
+          itemSeparatorStyle={styles.itemSeparatorStyle}
+          selectedValue={(index, item) => handleUnidad(index, item)}
+        />  
+        </View>
+        <Card style={{marginLeft: 5, marginRight: 5, marginTop: 5 }}>
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
-                <Text style={styles.textstyleheader}>UBICACION</Text>
+            <Text style={styles.textstyleheader}>UBICACION</Text>
         <Text style={styles.textstyle}>{unidad.ubicacion}</Text>
-                </View>
+            </View>
             </View>
             <View  style={styles.item}>
               <View style={{alignItem:'center'}}>
@@ -183,8 +301,8 @@ useEffect(() => {
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
             <View style={{alignItem:'center'}}>
-               <Text style={styles.textstyleheader}>MES</Text>
-              <Text style={styles.textstyle}>Junio</Text>
+              <Text style={styles.textstyleheader}>MES</Text>
+             <Text style={styles.textstyle}>{mesCuota}</Text>
               </View>
             </View>
             <View  style={styles.item}>
@@ -214,11 +332,10 @@ useEffect(() => {
             <View  style={styles.item}>
              <View style={{alignItem:'center'}}>
              <Text style={styles.textstyleheader}>EQUIVALENTE</Text>
-             <Text style={styles.textstyle}>$${valorDolar}</Text>
+             <Text style={styles.textstyle}>${valorPesos}</Text>
              </View>
             </View>
             </View>
-
             <View style={{flexDirection:'row', paddingTop:13}}><Text style={styles.cotizacion}>Dolar oficial: US$ {oficial}</Text><Text style={styles.cotizacion}>Dolar blue: US$ {blue}</Text></View>
             <Text style={{color:'#AEAEAE'}}>Cotización sujeta a modificaciones</Text>
             </View>
@@ -237,19 +354,23 @@ useEffect(() => {
             </View>
             <Text style={{alignSelf:'center', margin:10}}>{proxCuota.cant_cuotas - proxCuota.abonadas}</Text>
             </Card>
+            {Object.keys(cuotas).length>0 ?
             <View style={{ flex: 1 }}>
+              {cuotas[0].numero != 0 ?
               <Card style={{marginLeft: 5,
                                marginRight: 5,
                                padding: 5,
                                borderRadius:4}}>
+                                 
                 <FlatList
                     data={cuotas}
                     initialNumToRender={2}
-                    renderItem={({item}) => <Cuota name={item} />}
+                    renderItem={({item}) => ( item.observacion == 'ADELANTO' ? 
+                    <Cuota name={item} color={'#E4FFE5'} /> :  <Cuota name={item} color={'#FFF'} />)}
                     ItemSeparatorComponent = { FlatListItemSeparator }
                 />
-                </Card>
-            </View> 
+                </Card>:null}
+              </View>:null }
           </ScrollView>
       </View>
     );
@@ -271,7 +392,7 @@ const styles = StyleSheet.create({
   },
   textstyle:{
     fontFamily:'roboto-thin',
-    fontSize:25,
+    fontSize:18,
     textAlign:'center'
   },
   textstyleheader:{
@@ -288,7 +409,6 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
 },
-
 navBar: {
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -316,5 +436,49 @@ rightIcon: {
 cotizacion:{
   flex:1,
   fontFamily:'roboto-thin'
+},
+selectLabelTextStyle:{
+    color: "#000",
+    textAlign: "left",
+    width: "99%",
+    padding: 10,
+    flexDirection: "row"
+},
+placeHolderTextStyle: {
+  color: "#D3D3D3",
+  padding: 10,
+  textAlign: "left",
+  width: "99%",
+  flexDirection: "row"
+},
+dropDownImageStyle: {
+  marginLeft: 10,
+  width: 10,
+  height: 10,
+  alignSelf: "center"
+},
+itemSeparatorStyle:{
+  height: 1,
+  width: "90%",
+  alignSelf: "center",
+  backgroundColor: "#D3D3D3"
+},
+pickerStyle: {
+  marginLeft: 18,
+  elevation:3,
+  paddingRight: 25,
+  marginRight: 10,
+  marginBottom: 2,
+  shadowOpacity: 1.0,
+  shadowOffset: {
+    width: 1,
+    height: 1
+  },
+  borderWidth:1,
+  shadowRadius: 10,
+  backgroundColor: "rgba(255,255,255,1)",
+  shadowColor: "#d3d3d3",
+  borderRadius: 5,
+  flexDirection: "row"
 }
 });

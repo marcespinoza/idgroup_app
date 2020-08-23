@@ -145,7 +145,6 @@ export default function Login(props) {
         let items = [['nombre', resp.nombre], ['apellido', resp.apellido], ['documento', resp.documento], ['direccion', resp.direccion]
         , ['telefono', resp.telefono], ['fecha_nacimiento', resp.fecha_nacimiento], ['interes', resp.interes], ['ocupacion', resp.ocupacion]
         , ['correo', resp.correo],['idcontrol',  resp.idcliente]];
-        console.log(items);
 
         _storeData(items)
 

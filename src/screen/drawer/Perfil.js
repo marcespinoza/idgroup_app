@@ -209,7 +209,7 @@ const PerfilScreen = ({navigation}) => {
           
             <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
             <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
-          <View style={styles.header}>
+            <View style={styles.header}>
             <Text style={{fontFamily:'roboto-thin', fontSize:20}}>Editar mis datos</Text>
             <Switch
              onValueChange = {toggleSwitch}
@@ -277,7 +277,17 @@ const PerfilScreen = ({navigation}) => {
               }</View>
               <View >
               <TextInput
-              placeholder="Documento"
+              placeholder="Fecha celebración ocupacion"
+              value={values.ocupacion}
+              style={styles.input}
+              inputContainerStyle={{ borderColor: '#EAEAEA' }}
+              onChangeText={handleChange('fecha_ocupacion')}
+               onBlur={() => setFieldTouched('fecha_ocupacion')} 
+               />
+              </View>
+              <View >
+              <TextInput
+              placeholder="Document"
               keyboardType='numeric'
               maxLength={8} 
               value={values.documento}
