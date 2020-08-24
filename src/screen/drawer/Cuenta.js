@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react';
-import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage} from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage, BackHandler} from 'react-native';
 import Loader from './../../utils/Loader'
 import {Card, Container, Header, Content, Picker, Form } from 'native-base';
 import axios from 'axios';
@@ -189,6 +189,10 @@ const conversion = ()=>{
     setNuevaCuota(proxCuota.valor_cuota)
   }
 }
+
+BackHandler.addEventListener('hardwareBackPress', () => {
+  BackHandler.exitApp()
+});
 
 const FlatListItemSeparator = () => {
   return (

@@ -25,14 +25,26 @@ export default function Login(props) {
   const formRef = useRef();
 
 
-  const _onToggleSnackBar = () => setSnack( !showsnack.visible );
+  useEffect(() => {     
+    checkLogin()
+  });
+
+  const checkLogin = async() =>{
+    let log = await AsyncStorage.getItem("login")
+    let data = JSON.parse(log);
+    console.log(data)
+        if(data==='true'){
+          console.log("LOGUEAAA")
+          props.navigation.navigate('Main')
+        }
+  }
 
   const _onDismissSnackBar = () => setSnack(false);
 
-  const _storeData =async (items) => {
+  const _storeData = async (items) => {
     try {
-    
-       AsyncStorage.multiSet(items, err => {
+      await AsyncStorage.setItem('login', JSON.stringify('true'));
+      AsyncStorage.multiSet(items, err => {
       });
     } catch (error) {
        console.log(error.message);
@@ -158,8 +170,7 @@ export default function Login(props) {
       setMensajeError('Error al enviar datos')
       setSnack(true);
       console.log(error)
-     }.bind(this));
-    
+     }.bind(this));    
     } 
 }    
 
