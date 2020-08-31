@@ -34,7 +34,6 @@ export default function Login(props) {
     let data = JSON.parse(log);
     console.log(data)
         if(data==='true'){
-          console.log("LOGUEAAA")
           props.navigation.navigate('Main')
         }
   }

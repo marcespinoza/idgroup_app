@@ -23,9 +23,6 @@ const CuentaScreen = ({navigation}) => {
   const [mesCuota, setMesCuota] = useState('-')
   const [visible, setVisible] = React.useState(false);
 
-  const openMenu = () => setVisible(true);
-
-  const closeMenu = () => setVisible(false);
   const wait = (timeout) => {
     return new Promise(resolve => {
       setTimeout(resolve, timeout);
@@ -72,11 +69,10 @@ const retrieveData = async () => {
 }
 
 async function obtenerUnidades() {
+
      const URL = 'http://admidgroup.com/api_rest/index.php/api/unidadesporcliente';
-     setData({
-         ...data,
-         loading:true
-     });
+     setMensaje('Obteniendo unidades..')
+     setLoadingState(true)
      axios.post(URL, {
      idcliente: data.idcliente,
    })
@@ -84,8 +80,10 @@ async function obtenerUnidades() {
      // handle success
      let resp = response.data;
      setUnidades(response.data.unidad)
+     setLoadingState(false)
    }.bind(this))
    .catch(function(error) {
+     setLoadingState(false)
     }.bind(this)); 
  }
 
@@ -114,6 +112,7 @@ const requestOne = axios.post(unidadfuncional, config2);
 const requestTwo = axios.post(cuota, config2);
 const requestThree = axios.post(prox_cuota, config2);
 const [loading,setLoadingState] = useState(false);
+const [mensaje, setMensaje] = useState('Espere por favor..')
 
 const getCuotas = async() =>{
 setLoadingState(true);
@@ -169,13 +168,15 @@ const conversion = ()=>{
       setMesCuota('-');
   
     }
-  if(proxCuota.moneda==0){
+   //----Si es primer cuota no aplico variacion----// 
+  if(proxCuota.moneda==0 && proxCuota.prox_cuota!=1){
     //---------Obtengo la ultima cuota para calcular la proxima de acuerdo a la variacion  
   if(cuotas.length>0){
     cuotas.find(function(value, index) {
       if (index == cuotas.length-1) {
         Object.entries(value).map(([key,v])=>{        
           if(key==='monto'){
+            console.log("NUEVA"+key)
             var conv = ((proxCuota.variacion * v)/100).toFixed(2)
             conv = (Number(conv) +  parseFloat(v))
             setNuevaCuota(conv)
@@ -250,7 +251,7 @@ useEffect(()=>{
 
     return (
       <View style={styles.container}>
-         <Loader  loading={loading} mensaje={'Espere por favor..'}/>
+         <Loader  loading={loading} mensaje={mensaje}/>
         <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
@@ -355,8 +356,9 @@ useEffect(()=>{
             <View style={styles.leftContainer}>
             <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/close.png')} />
             <Text style={{ alignSelf:'center'}}>CUOTAS RESTANTES</Text>
-            </View>
+            </View>{(isNaN(proxCuota.cant_cuotas - proxCuota.abonadas))?<Text></Text>:
             <Text style={{alignSelf:'center', margin:10}}>{proxCuota.cant_cuotas - proxCuota.abonadas}</Text>
+            }
             </Card>
             {Object.keys(cuotas).length>0 ?
             <View style={{ flex: 1 }}>

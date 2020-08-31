@@ -15,8 +15,8 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Snackbar,DefaultTheme,  } from 'react-native-paper';
+
 import axios from 'axios';
 import moment from 'moment';
 import { Input } from 'react-native-elements';
@@ -24,7 +24,7 @@ import { TextInputMask } from 'react-native-masked-text'
 import LabelSelect from '../utils/LabelSelect';
 import Loader from '../utils/Loader.js'
 import * as yup from 'yup'
-import { Formik } from 'formik'
+import { Formik, yupToFormErrors } from 'formik'
 import Modal, {
     ModalTitle,
     ModalContent,
@@ -35,6 +35,7 @@ import Modal, {
   } from 'react-native-modals';
 import { Button } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
+import { number } from 'prop-types';
 
 
 const {width: WIDTH} = Dimensions.get('window')
@@ -96,38 +97,48 @@ const RegisterScreen = ({navigation}) => {
         nombre: formRef.current.values.nombre,
         apellido: formRef.current.values.apellido,
         correo: formRef.current.values.correo,
+        direccion:formRef.current.values.direccion,
         ocupacion: formRef.current.values.ocupacion,
+        telefono:formRef.current.values.telefono,
+        fecha_ocupacion: moment(formRef.current.values.fecha_ocupacion, 'DD-MM-YYYY').format('YYYY-MM-DD'),
         documento: formRef.current.values.documento,
-        fecha_nacimiento: moment(nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+        fecha_nacimiento: moment(formRef.current.values.fecha_nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
         interes: 'data.interes',
         clave: formRef.current.values.contraseña,
       })
       .then(function(response) {
-        // handle success
-        let resp = response.data;
-        setData({
-            ...data,
-            loading:false,
-            modal_:true,
-        });
+        if(response.data.codigo==201){
+              
         Animated.timing(data.progress, {
           toValue: 1,
           duration: 2500,
           easing: Easing.linear,
         }).start();
+      }
+      setData({
+        ...data,
+        loading:false,
+        modal_:true,
+    });  
       }.bind(this))
       .catch(function(error) {
         setData({
             ...data,
             loading:false
         });
-        console.log(JSON.stringify(error));
+        setMensajeError(error)
+        setSnack(true);
        }.bind(this));
     
     }
 
+    const onChangedDocumento = (text) => {
+      this.setState({
+          mobile: text.replace(/[^0-9]/g, ''),
+      });
+  }
+
     const [nacimiento, setNacimiento] = useState('');
-    const [fechaOcupacion, setFechaOcupacion] = useState('');
     const [statemodal, showModal] = useState(false);
     const [items, setInteres] = useState([]);
     useEffect(() => {
@@ -178,6 +189,7 @@ const RegisterScreen = ({navigation}) => {
       apellido: '',
       correo:'',
       direccion:'',
+      telefono:'',
       ocupacion:'',
       documento:'',
       fecha_nacimiento:'',
@@ -200,12 +212,20 @@ const RegisterScreen = ({navigation}) => {
         correo: yup
         .string() 
         .required('Este campo es obligatorio'),
+        telefono: yup
+        .string() 
+        .required('Este campo es obligatorio'),
         ocupacion: yup
         .string() 
         .required('Este campo es obligatorio'),
+        fecha_ocupacion: yup
+        .date(),
         documento: yup
-        .string()
+        .number()
         .required('Este campo es obligatorio'),
+        fecha_nacimiento:
+         yup.string().
+         required('Este campo es obligatorio'),
         contraseña: yup
         .string()
         .min(5,'Mínimo 5 caracteres')
@@ -221,7 +241,7 @@ const RegisterScreen = ({navigation}) => {
         return this.parent.contraseña === value;
         }),
     })}  >
-    {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
+    {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit, setFieldValue }) => (
       <View style={styles.container}>
         <ImageBackground  source={require('../../Images/fondoregister.jpg')} style={styles.backgroundImage} >
 
@@ -329,16 +349,31 @@ const RegisterScreen = ({navigation}) => {
             <View >
             <TextInput
             placeholder="Dirección"
-            value={values.correo}
+            value={values.direccion}
             style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
             onChangeText={handleChange('direccion')}
                onBlur={() => setFieldTouched('direccion')} />
             </View>
             <View style={{height:12, alignItems:'center'}}>
-              {touched.correo && errors.correo &&              
-              <Text style={{ fontSize: 10, color: 'red'}}>{errors.correo}</Text>
+              {touched.direccion && errors.direccion &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.direccion}</Text>
             }</View>
+            {/*------Telefono------------*/}
+            <View >
+            <TextInput
+            placeholder="Telefono"
+            value={values.telefono}
+            style={styles.input}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
+            onChangeText={handleChange('telefono')}
+               onBlur={() => setFieldTouched('telefono')} />
+            </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.telefono && errors.telefono &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.telefono}</Text>
+            }</View>
+            {/*------Ocupacion------------*/}
             <View >
             <TextInput
             placeholder="Ocupación"
@@ -355,27 +390,28 @@ const RegisterScreen = ({navigation}) => {
             }</View>
             {/*--------Fecha ocupacion----------*/}
             <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
-            <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Celebración ocupación</Text>
+            <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#000'}}>Celebración ocupación</Text>
             <TextInputMask
                style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                 type={'datetime'}
-                placeholder='DD-MM-YYYY'
+                placeholder='DD-MM'
                 options={{
-                    format: 'DD-MM-YYYY'
+                    format: 'DD-MM'
                   }}
-                value={fechaOcupacion} 
-                onChangeText={text => { setFechaOcupacion(text)}} />            
+                value={values.fecha_ocupacion} 
+                onChangeText={text => { setFieldValue(text)}} />            
             </View>            
             <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1.2, marginLeft:10, marginRight:10}}/>
             <View >
             <TextInput
             placeholder="Documento"
             keyboardType='numeric'
+            numeric 
             maxLength={8} 
             value={values.documento}
             style={styles.input}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
-            onChangeText={handleChange('documento')}
+            onChangeText={text => {setFieldValue('documento', text)}}
              onBlur={() => setFieldTouched('documento')}   />
             </View>
             <View style={{height:12, alignItems:'center'}}>
@@ -384,7 +420,7 @@ const RegisterScreen = ({navigation}) => {
             }</View>
             {/*--------Fecha nacimiento----------*/}
             <View style={{flexDirection:'row',  marginLeft:12, alignItems:'center'}}>
-            <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Fecha de nacimiento</Text>
+            <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#000'}}>Fecha de nacimiento</Text>
             <TextInputMask
                style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                 type={'datetime'}
@@ -392,14 +428,16 @@ const RegisterScreen = ({navigation}) => {
                 options={{
                     format: 'DD-MM-YYYY'
                   }}
-                value={nacimiento} 
-                onChangeText={text => { setNacimiento(text)}} />            
+                value={values.fecha_nacimiento} 
+                onChangeText={text => { setFieldValue('fecha_nacimiento', text)}}
+                onBlur={() => setFieldTouched('fecha_nacimiento')}  />            
             </View>            
             <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1.2, marginLeft:10, marginRight:10}}/>
             <View style={{height:12, alignItems:'center'}}>
               {touched.fecha_nacimiento && errors.fecha_nacimiento &&              
               <Text style={{ fontSize: 10, color: 'red'}}>{errors.fecha_nacimiento}</Text>
             }</View>
+            {/*--------Intereses----------*/}
             <View style={{marginLeft:12}}>
               <Text style={{fontSize:17, fontFamily:'roboto-light',color:'#AAAAAA'}}>Intereses</Text>
               <LabelSelect

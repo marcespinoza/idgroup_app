@@ -11,11 +11,13 @@ import {
 import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Linking from 'expo-linking';
+import{ AuthContext } from './../utils/context';
+
 
 const DrawerContent = props => {
 
   const [usuario, setUsuario] = useState('usuario');
-
+  const { signOut} = React.useContext(AuthContext);
   useEffect(() => {
     retrieveData();
   });
@@ -131,7 +133,7 @@ const retrieveData = async () => {
                         />
                     )}
                     label="Cerrar sesión"
-                    onPress={() => {}}
+                    onPress={() =>  {signOut()}}
                 />
             </Drawer.Section>
         </View>
