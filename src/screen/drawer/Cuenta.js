@@ -1,9 +1,10 @@
 import React, {useState,useEffect} from 'react';
-import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage, BackHandler} from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage, BackHandler, Button} from 'react-native';
 import Loader from './../../utils/Loader'
 import {Card, Container, Header, Content, Picker, Form } from 'native-base';
 import axios from 'axios';
 import RNPicker from 'rn-modal-picker'
+import { tr } from 'date-fns/locale';
 
 
 
@@ -17,22 +18,47 @@ const CuentaScreen = ({navigation}) => {
   const [unidades, setUnidades] = useState([]);
   const [proxCuota, setProxCuota] = useState([])
   const [valorPesos, setValorPesos] = useState('-')
+  const [valorInteres, setValorInteres] = useState('-')
   const [nuevaCuota, setNuevaCuota] = useState('')
   const [idUnidad, setidUnidad] = useState('')
   const [nombreUnidad, setNombreUnidad] = useState('')
   const [mesCuota, setMesCuota] = useState('-')
   const [visible, setVisible] = React.useState(false);
 
-  const wait = (timeout) => {
-    return new Promise(resolve => {
-      setTimeout(resolve, timeout);
-    });
+  const onRefresh =() =>{
+    if(idUnidad!=''){
+      console.log("GETCUO")
+      setCuotas([])
+      getCuotas()  
+    }else{
+      obtenerUnidades()
+    }
   }
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true); 
-    wait(2000).then(() => setRefreshing(false));
-  }, []);
+  async function cc(){
+    // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+    console.log("iuhccc"+idUnidad)
+    setRefreshing(true)
+    const URL = 'http://admidgroup.com/api_rest/index.php/api/cuotasporcliente';
+    axios.post(URL, {
+      idunidad: idUnidad,
+      headers: {
+       'Access-Control-Allow-Origin': '*',
+       "Access-Control-Allow-Headers":"X-Requested-With"
+       },     
+  })
+  .then(function(response) {
+    // handle success
+    setRefreshing(false)
+    setCuotas(response.data.cuotas)
+  }.bind(this))
+  .catch(function(error) {
+    setRefreshing(false)
+
+    console.log(error)
+   }.bind(this));    
+  } 
+
   const [data, setData] = React.useState({
     idcliente: '',
     showDropDown: false,
@@ -69,21 +95,20 @@ const retrieveData = async () => {
 }
 
 async function obtenerUnidades() {
-
+    setRefreshing(true)
      const URL = 'http://admidgroup.com/api_rest/index.php/api/unidadesporcliente';
-     setMensaje('Obteniendo unidades..')
-     setLoadingState(true)
      axios.post(URL, {
      idcliente: data.idcliente,
    })
    .then(function(response) {
      // handle success
+     setRefreshing(false)
      let resp = response.data;
      setUnidades(response.data.unidad)
-     setLoadingState(false)
+    
    }.bind(this))
    .catch(function(error) {
-     setLoadingState(false)
+     setRefreshing(false)
     }.bind(this)); 
  }
 
@@ -92,50 +117,62 @@ let unidadfuncional = "http://admidgroup.com/api_rest/index.php/api/unidadporcli
 let cuota = "http://admidgroup.com/api_rest/index.php/api/cuotasporcliente";
 let prox_cuota = "http://admidgroup.com/api_rest/index.php/api/proximacuota";
 
-var config = {
-  idcliente: data.idcliente,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      "Access-Control-Allow-Headers":"X-Requested-With"
-     },
-    }
 
- var config2 = {
+ var config = {
    idunidad: idUnidad,
      headers: {
       'Access-Control-Allow-Origin': '*',
-      "Access-Control-Allow-Headers":"X-Requested-With"
+      "Access-Control-Allow-Headers":"X-Requested-With",
       },
     }
 
-const requestOne = axios.post(unidadfuncional, config2);
-const requestTwo = axios.post(cuota, config2);
-const requestThree = axios.post(prox_cuota, config2);
+let requestOne = axios.post(unidadfuncional, config);
+let requestTwo = axios.post(cuota, config);
+let requestThree = axios.post(prox_cuota, config);
 const [loading,setLoadingState] = useState(false);
 const [mensaje, setMensaje] = useState('Espere por favor..')
 
-const getCuotas = async() =>{
-setLoadingState(true);
-
+let getCuotas = async () =>{
+console.log("A CUOTAS")
+setRefreshing(true)
 setUnidad({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
 setCuotas([]);
-axios.all([requestOne, requestTwo, requestThree])
-.then(
-axios.spread((...responses) => {
+await Promise.all([requestOne, requestTwo, requestThree])
+.then( function (responses) {
+  setRefreshing(false)
   setUnidad(responses[0].data.unidad[0])
   setCuotas(responses[1].data.cuotas)    
   setProxCuota(responses[2].data.estado[0])
-  // setVariacion(responses[2].data.variaciones[0].valor);
-  // setMoneda(responses[1].data.cuotas[0].moneda)
-  setLoadingState(false);
-  
-})
-)
-.catch(errors => {
-  setLoadingState(false);
-  console.error("ERRORES "+errors);
-});
-}  
+	// Get a JSON object from each of the responses
+	return Promise.all(responses.map(function (response) {
+		console.log(response.data);
+	}));
+}).then(function (data) {
+	// Log the data to the console
+	// You would do something with both sets of data here
+	console.log("daaata"+data);
+}).catch(function (error) {
+  setRefreshing(false)
+	// if there's an error, log it
+	console.log(error);
+});}
+// then(
+// axios.spread((...responses) => {
+//   setRefreshing(false);  
+
+//   console.log(responses[1].data.cuotas)
+//   setUnidad(responses[0].data.unidad[0])
+//   setCuotas(responses[1].data.cuotas)    
+//   setProxCuota(responses[2].data.estado[0])
+//   // setVariacion(responses[2].data.variaciones[0].valor);
+//   // setMoneda(responses[1].data.cuotas[0].moneda)
+// })
+// )
+// .catch(errors => {
+//   console.log("Error get cuota"+errors)
+//   setLoadingState(false);
+// });
+// }  
 
 const conversion = ()=>{ 
   switch(proxCuota.mes) { 
@@ -176,10 +213,15 @@ const conversion = ()=>{
       if (index == cuotas.length-1) {
         Object.entries(value).map(([key,v])=>{        
           if(key==='monto'){
-            console.log("NUEVA"+key)
             var conv = ((proxCuota.variacion * v)/100).toFixed(2)
             conv = (Number(conv) +  parseFloat(v))
             setNuevaCuota(conv)
+            var dia = new Date().getDate()
+            if(dia>1){
+              var interes = (conv * 5)/100
+              setValorInteres(conv+interes)
+              console.log("int"+interes)
+            }
           }
       })
       }
@@ -256,8 +298,7 @@ useEffect(()=>{
         contentContainerStyle={styles.container}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+        }>
         <Image style={styles.backgroundImage} source={require('../../../Images/fondoregister.jpg')}  />   
         <View style={{marginTop:5}}>
           <RNPicker
@@ -280,6 +321,7 @@ useEffect(()=>{
           selectedValue={(index, item) => handleUnidad(index, item)}
         />  
         </View>
+
         <Card style={{marginLeft: 5, marginRight: 5, marginTop: 5 }}>
            <View style={styles.cardContainer}> 
             <View  style={styles.item}>
@@ -338,6 +380,12 @@ useEffect(()=>{
              <View style={{alignItem:'center'}}>
              <Text style={styles.textstyleheader}>EQUIVALENTE</Text>
              <Text style={styles.textstyle}>${valorPesos}</Text>
+             </View>
+            </View>
+            <View  style={styles.item}>
+             <View style={{alignItem:'center'}}>
+             <Text style={styles.textstyleheader}>INTERES</Text>
+             <Text style={styles.textstyle}>${valorInteres}</Text>
              </View>
             </View>
             </View>
