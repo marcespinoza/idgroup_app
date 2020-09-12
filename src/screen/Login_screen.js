@@ -6,6 +6,9 @@ import Loader from '../utils/Loader.js'
 import { Snackbar,DefaultTheme,  } from 'react-native-paper';
 import * as yup from 'yup'
 import { Formik } from 'formik'
+import NetworkUtils from './../utils/NetworkUtils'
+import { BackHandler } from "react-native";
+
 
 const { width, height } = Dimensions.get('window')
 const screenHeight = Math.round(Dimensions.get('window').height);
@@ -23,11 +26,22 @@ export default function Login(props) {
   const [showsnack,setSnack] = useState(false);
   const [mensaje_error,setMensajeError] = useState('');
   const formRef = useRef();
+  const [hidePass, setHidePass] = useState(true);
 
 
   useEffect(() => {     
     checkLogin()
   });
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
+    return () => { BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+    };
+  }, []);
+
+  const backButtonHandler = () => {
+    BackHandler.exitApp()
+  }
 
   const checkLogin = async() =>{
     let log = await AsyncStorage.getItem("login")
@@ -72,11 +86,10 @@ export default function Login(props) {
       <View style={styles.container}>
         <ScrollView>
           <KeyboardAvoidingView  behavior='padding' style={styles.container}>  
-       <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>
-       
-          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />    
-        
+       <Loader  loading={loading} mensaje={'Iniciando sesión..'}/>       
+          <Image style={styles.imagen} source={require('../../Images/id_group.png')} />            
              <View style={styles.logoContainer}>
+
              <Icon name="user" size={25} color="#000000" style={styles.inputIcon}/>
              <TextInput 
                value={values.documento}
@@ -97,7 +110,17 @@ export default function Login(props) {
               style={styles.input}
               onChangeText={handleChange('clave')}
               onBlur={() => setFieldTouched('clave')}
-              placeholder="Contraseña"/>              
+              secureTextEntry={hidePass ? true : false}
+              placeholder="Contraseña"/>        
+               <Icon
+              name={hidePass ? 'eye-slash' : 'eye'}
+              size={22}
+              color="grey"
+              onPress={() => setHidePass(!hidePass)}
+              style={{position: "absolute",
+              top:15,
+              right:37}}
+            />      
           </View>
           <View style={{height:12}}>
           {touched.clave && errors.clave &&
@@ -105,7 +128,6 @@ export default function Login(props) {
           </View>
           </KeyboardAvoidingView>  
           </ScrollView>
-          <View style={{}}>
           <TouchableOpacity onPress={() => 
             handleSubmit()
         //      props.navigation.navigate('Main',
@@ -118,23 +140,24 @@ export default function Login(props) {
           <TouchableOpacity onPress={() => props.navigation.navigate('Register') } 
               style={data.usuario == '' || data.contraseña == '' ? styles.buttonRegister : styles.buttonRegister }>
               <Text style={{color:'#323232', fontFamily:'roboto-medium'}}> REGISTRARME </Text>
+
           </TouchableOpacity>
           <Snackbar
-          visible={showsnack}
+           visible={showsnack}
            onDismiss={_onDismissSnackBar}
-          duration={3000}
-          style={styles.snack} >
+           duration={3000}
+           style={styles.snack} >
             {mensaje_error}
         </Snackbar>
-          </View>
           </View>
            )}
            </Formik>
     );
   
     async function loginuser(){
-      // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-      const URL = 'http://admidgroup.com/api_rest/index.php/api/login';
+      const isConnected = await NetworkUtils.isNetworkAvailable()
+      if(isConnected){
+      const URL = 'https://admidgroup.com/api_rest/index.php/api/login';
       setLoadingState(true);
       axios.post(URL, {
       dni: formRef.current.values.documento,
@@ -155,10 +178,10 @@ export default function Login(props) {
         })
         let items = [['nombre', resp.nombre], ['apellido', resp.apellido], ['documento', resp.documento], ['direccion', resp.direccion]
         , ['telefono', resp.telefono], ['fecha_nacimiento', resp.fecha_nacimiento], ['interes', resp.interes], ['ocupacion', resp.ocupacion]
-        , ['correo', resp.correo],['idcontrol',  resp.idcliente]];
+        , ['correo', resp.correo],['idcontrol',  resp.idcliente],['clave',  resp.clave],['fecha_ocupacion',  resp.fecha_ocupacion]];
 
         _storeData(items)
-
+      formRef.current.resetForm()
       }else{
         setMensajeError('Usuario/contraseña incorrecto/a')
         setSnack(true);
@@ -170,7 +193,11 @@ export default function Login(props) {
       setSnack(true);
       console.log(error)
      }.bind(this));    
-    } 
+    } else{
+      setMensajeError('Revise su conexión')
+      setSnack(true);
+    }
+  }
 }    
 
 
@@ -183,7 +210,7 @@ export default function Login(props) {
     snack:{
       color:'#ffffff',
       backgroundColor:'#D44942',
-      alignSelf:'center'
+      alignItems:'center'
     },
     text_input:{
       left:0,

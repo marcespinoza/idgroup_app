@@ -17,7 +17,7 @@ const CuentaScreen = ({navigation}) => {
   const [unidad, setUnidad]= useState({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
   const [unidades, setUnidades] = useState([]);
   const [proxCuota, setProxCuota] = useState([])
-  const [valorPesos, setValorPesos] = useState('-')
+  const [valorConversion, setValorConversion] = useState('-')
   const [valorInteres, setValorInteres] = useState('-')
   const [nuevaCuota, setNuevaCuota] = useState('')
   const [idUnidad, setidUnidad] = useState('')
@@ -27,7 +27,6 @@ const CuentaScreen = ({navigation}) => {
 
   const onRefresh =() =>{
     if(idUnidad!=''){
-      console.log("GETCUO")
       setCuotas([])
       getCuotas()  
     }else{
@@ -39,7 +38,7 @@ const CuentaScreen = ({navigation}) => {
     // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
     console.log("iuhccc"+idUnidad)
     setRefreshing(true)
-    const URL = 'http://admidgroup.com/api_rest/index.php/api/cuotasporcliente';
+    const URL = 'https://admidgroup.com/api_rest/index.php/api/cuotasporcliente';
     axios.post(URL, {
       idunidad: idUnidad,
       headers: {
@@ -96,7 +95,7 @@ const retrieveData = async () => {
 
 async function obtenerUnidades() {
     setRefreshing(true)
-     const URL = 'http://admidgroup.com/api_rest/index.php/api/unidadesporcliente';
+     const URL = 'https://admidgroup.com/api_rest/index.php/api/unidadesporcliente';
      axios.post(URL, {
      idcliente: data.idcliente,
    })
@@ -113,9 +112,9 @@ async function obtenerUnidades() {
  }
 
 
-let unidadfuncional = "http://admidgroup.com/api_rest/index.php/api/unidadporcliente";
-let cuota = "http://admidgroup.com/api_rest/index.php/api/cuotasporcliente";
-let prox_cuota = "http://admidgroup.com/api_rest/index.php/api/proximacuota";
+let unidadfuncional = "https://admidgroup.com/api_rest/index.php/api/unidadporcliente";
+let cuota = "https://admidgroup.com/api_rest/index.php/api/cuotasporcliente";
+let prox_cuota = "https://admidgroup.com/api_rest/index.php/api/proximacuota";
 
 
  var config = {
@@ -133,7 +132,6 @@ const [loading,setLoadingState] = useState(false);
 const [mensaje, setMensaje] = useState('Espere por favor..')
 
 let getCuotas = async () =>{
-console.log("A CUOTAS")
 setRefreshing(true)
 setUnidad({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
 setCuotas([]);
@@ -143,17 +141,12 @@ await Promise.all([requestOne, requestTwo, requestThree])
   setUnidad(responses[0].data.unidad[0])
   setCuotas(responses[1].data.cuotas)    
   setProxCuota(responses[2].data.estado[0])
-	// Get a JSON object from each of the responses
 	return Promise.all(responses.map(function (response) {
 		console.log(response.data);
 	}));
 }).then(function (data) {
-	// Log the data to the console
-	// You would do something with both sets of data here
-	console.log("daaata"+data);
 }).catch(function (error) {
   setRefreshing(false)
-	// if there's an error, log it
 	console.log(error);
 });}
 // then(
@@ -206,7 +199,7 @@ const conversion = ()=>{
   
     }
    //----Si es primer cuota no aplico variacion----// 
-  if(proxCuota.moneda==0 && proxCuota.prox_cuota!=1){
+  if(proxCuota.moneda==0 && proxCuota.prox_cuota!=1){ 
     //---------Obtengo la ultima cuota para calcular la proxima de acuerdo a la variacion  
   if(cuotas.length>0){
     cuotas.find(function(value, index) {
@@ -215,14 +208,8 @@ const conversion = ()=>{
           if(key==='monto'){
             var conv = ((proxCuota.variacion * v)/100).toFixed(2)
             conv = (Number(conv) +  parseFloat(v))
-            setNuevaCuota(conv)
-            var dia = new Date().getDate()
-            if(dia>1){
-              var interes = (conv * 5)/100
-              setValorInteres(conv+interes)
-              console.log("int"+interes)
-            }
-          }
+            setNuevaCuota(conv)           
+         }
       })
       }
     });
@@ -230,6 +217,18 @@ const conversion = ()=>{
     setValorPesos('-')
   }else{
     setNuevaCuota(proxCuota.valor_cuota)
+  }
+  //-----Si paso el dia 10 calculo interes---//
+  var dia = new Date().getDate()
+  if(dia>10){
+    var interes = (nuevaCuota * 5)/100
+    setValorInteres((Number(nuevaCuota)+Number(interes)).toFixed(2))
+  }
+  console.log("tipo"+parseFloat(oficial).toFixed(3))
+  if(proxCuota.moneda==0){
+    setValorConversion(Number(nuevaCuota)*parseFloat(blue))
+  }else{
+    setValorConversion(Number(nuevaCuota)*parseFloat(oficial))
   }
 }
 
@@ -251,7 +250,7 @@ const FlatListItemSeparator = () => {
 
 useEffect(() => {
   if(Object.keys(proxCuota).length >0){
-  conversion()
+    conversion()
   }
 },[proxCuota]);
 
@@ -362,7 +361,7 @@ useEffect(()=>{
                <View style={{alignItem:'center'}}>
                <Text style={styles.textstyleheader}>MONTO</Text>
                <View style={{flexDirection:'row', flex:1, flexWrap:'wrap', justifyContent:'center'}}>
-                <Text style={styles.textstyle}>{proxCuota.moneda==1 ? '$$ ': '$ '}</Text>
+                <Text style={styles.textstyle}>{proxCuota.moneda==1 ? 'USD ': '$ '}</Text>
                <Text style={styles.textstyle}>{nuevaCuota}</Text>
                </View>
                </View>
@@ -379,7 +378,7 @@ useEffect(()=>{
             <View  style={styles.item}>
              <View style={{alignItem:'center'}}>
              <Text style={styles.textstyleheader}>EQUIVALENTE</Text>
-             <Text style={styles.textstyle}>${valorPesos}</Text>
+             <Text style={styles.textstyle}>${valorConversion}</Text>
              </View>
             </View>
             <View  style={styles.item}>
@@ -389,7 +388,7 @@ useEffect(()=>{
              </View>
             </View>
             </View>
-            <View style={{flexDirection:'row', paddingTop:13}}><Text style={styles.cotizacion}>Dolar oficial: US$ {oficial}</Text><Text style={styles.cotizacion}>Dolar blue: US$ {blue}</Text></View>
+            <View style={{flexDirection:'row', paddingTop:13}}><Text style={styles.cotizacion}>Dolar oficial: USD {oficial}</Text><Text style={styles.cotizacion}>Dolar blue: USD {blue}</Text></View>
             <Text style={{color:'#AEAEAE'}}>Cotización sujeta a modificaciones</Text>
             </View>
             </Card>

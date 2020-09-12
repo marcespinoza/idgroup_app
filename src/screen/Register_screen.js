@@ -1,4 +1,5 @@
 import React ,{useState, useEffect, useRef}from 'react';
+import { BackHandler } from "react-native";
 import { 
     View, 
     Text, 
@@ -15,7 +16,8 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {LinearGradient} from 'expo-linear-gradient';
-import { Snackbar,DefaultTheme,  } from 'react-native-paper';
+import SnackBar from 'react-native-snackbar-component'
+
 
 import axios from 'axios';
 import moment from 'moment';
@@ -87,8 +89,13 @@ const RegisterScreen = ({navigation}) => {
 
 
    async function registro() {
-     console.log("INTERES "+items[0].isSelected, items[1].isSelected)
-        const URL = 'http://admidgroup.com/api_rest/index.php/api/cliente';
+       let interes_ = []
+            items.map((y) => {
+              if(y.isSelected==true){
+                 interes_.push(y.name)
+              }
+          })
+        const URL = 'https://admidgroup.com/api_rest/index.php/api/cliente';
         setData({
             ...data,
             loading:true
@@ -103,7 +110,7 @@ const RegisterScreen = ({navigation}) => {
         fecha_ocupacion: moment(formRef.current.values.fecha_ocupacion, 'DD-MM-YYYY').format('YYYY-MM-DD'),
         documento: formRef.current.values.documento,
         fecha_nacimiento: moment(formRef.current.values.fecha_nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-        interes: 'data.interes',
+        interes: interes_,
         clave: formRef.current.values.contraseña,
       })
       .then(function(response) {
@@ -120,14 +127,16 @@ const RegisterScreen = ({navigation}) => {
         loading:false,
         modal_:true,
     });  
+    console.log(response.data)
       }.bind(this))
       .catch(function(error) {
         setData({
             ...data,
             loading:false
         });
-        setMensajeError(error)
-        setSnack(true);
+        console.log(error)
+        setMensajesnack('Error al registar')
+        setShowsnack(true)
        }.bind(this));
     
     }
@@ -140,12 +149,23 @@ const RegisterScreen = ({navigation}) => {
 
     const [nacimiento, setNacimiento] = useState('');
     const [statemodal, showModal] = useState(false);
+    const [showsnack, setShowsnack] = useState(false)
+    const [mensajesnack, setMensajesnack] = useState('')
     const [items, setInteres] = useState([]);
     useEffect(() => {
-        // Should not ever set state during rendering, so do this in useEffect instead.
         setInteres(opciones);
         
       }, []);      
+
+      useEffect(() => {
+    if(data.modal_){
+       BackHandler.addEventListener("hardwareBackPress", () => true);
+       return () => {
+       BackHandler.removeEventListener("hardwareBackPress", () => true);
+    };
+        }
+        
+      }, [data.modal_]);    
 
          const selectConfirm=(list)=> {
             let items2 = [...items];
@@ -158,11 +178,12 @@ const RegisterScreen = ({navigation}) => {
             }
             for (let item of items2) {
               if(item.isSelected){
-                console.log("SELECTS "+item.name+" "+item.isSelected) 
                 seleccionados=item 
               }              
             }            
             setInteres(items2)
+            
+          
           }
 
          const deleteItem=(item)=> {
@@ -211,6 +232,7 @@ const RegisterScreen = ({navigation}) => {
         .required('Este campo es obligatorio'),
         correo: yup
         .string() 
+        .email("Ingrese un correo válido")
         .required('Este campo es obligatorio'),
         telefono: yup
         .string() 
@@ -222,6 +244,7 @@ const RegisterScreen = ({navigation}) => {
         .date(),
         documento: yup
         .number()
+        .typeError("Ingrese solo numeros")
         .required('Este campo es obligatorio'),
         fecha_nacimiento:
          yup.string().
@@ -241,7 +264,7 @@ const RegisterScreen = ({navigation}) => {
         return this.parent.contraseña === value;
         }),
     })}  >
-    {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit, setFieldValue }) => (
+    {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit, setFieldValue, resetForm }) => (
       <View style={styles.container}>
         <ImageBackground  source={require('../../Images/fondoregister.jpg')} style={styles.backgroundImage} >
 
@@ -267,36 +290,8 @@ const RegisterScreen = ({navigation}) => {
           </TouchableOpacity>
           </View>
           </Modal>
-          {/* <Modal
-          width={0.7}
-          visible={data.modal_}
-          rounded
-          actionsBordered
-          onTouchOutside={() => {
-            setData({
-                ...data,
-                modal_:false
-            });
-          }}
-          modalTitle={
-            <ModalTitle
-              title="Registro correcto"
-              textStyle={{color:'#288E0F'}}
-            />
-          }
-          footer={
-            <ModalFooter>
-              <TouchableOpacity
-                    style={styles.signIn}
-                    onPress={() => closeScreen()}  >
-                    <Text style={[styles.textSign, {
-                        color:'#323232'
-                    }]}>VOLVER AL INICIO</Text>
-                </TouchableOpacity>
-            </ModalFooter>
-          }
-        >
-        </Modal> */}
+          <SnackBar visible={showsnack} textMessage={mensajesnack} autoHidingTime={3000} backgroundColor="#FF3333" position="top" actionText="let's go"/>
+
         <View style={styles.header}>
             <Text style={styles.text_header}>Bienvenido!</Text>
         </View>
@@ -399,7 +394,7 @@ const RegisterScreen = ({navigation}) => {
                     format: 'DD-MM'
                   }}
                 value={values.fecha_ocupacion} 
-                onChangeText={text => { setFieldValue(text)}} />            
+                onChangeText={text => { setFieldValue('fecha_ocupacion', text)}}/>            
             </View>            
             <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1.2, marginLeft:10, marginRight:10}}/>
             <View >
@@ -503,6 +498,7 @@ const RegisterScreen = ({navigation}) => {
             </ScrollView>
         </Animatable.View>
         </ImageBackground>
+
       </View>
       )}
       </Formik>

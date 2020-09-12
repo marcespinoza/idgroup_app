@@ -48,15 +48,17 @@ const PerfilScreen = ({navigation}) => {
         setData({
           ...data,
           apellido: stores[0][1],
-          correo: stores[1][1],    
-          direccion: stores[2][1],
-          documento:stores[3][1],
-          fecha_nacimiento: stores[4][1],
-          interes: stores[5][1],
-          nombre: stores[6][1],
-          ocupacion:stores[7][1],  
-          telefono: stores[8][1],
-          idcontrol: stores[9][1]
+          contraseña: stores[1][1],    
+          correo: stores[2][1],
+          direccion:stores[3][1],
+          documento:stores[4][1],
+          fecha_nacimiento: stores[5][1],
+          fecha_ocupacion: stores[6][1],
+          idcontrol: stores[7][1],
+          interes: stores[8][1],
+          nombre: stores[9][1],
+          ocupacion:stores[11][1],  
+          telefono: stores[11][1],
       });
          console.log(stores);
        });
@@ -64,11 +66,10 @@ const PerfilScreen = ({navigation}) => {
     });
   }
 
-  const toggle = React.useCallback(() => {
-    setFormState(formState === false ? true: false);
-  }, [formState, setFormState]);
+  // const toggle = React.useCallback(() => {
+  //   setFormState(formState === false ? true: false);
+  // }, [formState, setFormState]);
 
-  const toggleSwitch = () => setFormState(previousState => !previousState);
 
   const [nacimiento, setNacimiento] = useState('');
   const [items, setInteres] = useState([]);
@@ -80,6 +81,7 @@ const PerfilScreen = ({navigation}) => {
      retrieveData();    
   }, []);
       
+  const toggleSwitch = () => setFormState(previousState => !previousState);
 
     const selectConfirm=(list)=> {
        let items2 = [...items];
@@ -166,9 +168,10 @@ const PerfilScreen = ({navigation}) => {
         ocupacion:data.ocupacion,
         documento:data.documento,
         fecha_nacimiento:data.fecha_nacimiento,
+        fecha_ocupacion:data.fecha_ocupacion,
         interes:'',
-        contraseña:'',
-        confirma_contraseña:''
+        contraseña:data.contraseña,
+        confirma_contraseña:data.contraseña
       }}
       enableReinitialize
       innerRef={formRef}
@@ -214,7 +217,7 @@ const PerfilScreen = ({navigation}) => {
             <Switch
              onValueChange = {toggleSwitch}
              value={formState}/>              
-          </View>            
+            </View>            
               <ScrollView >    
               <View >     
                <View>
@@ -275,19 +278,26 @@ const PerfilScreen = ({navigation}) => {
                 {touched.ocupacion && errors.ocupacion &&              
                 <Text style={{ fontSize: 10, color: 'red'}}>{errors.ocupacion}</Text>
               }</View>
+              <View style={{flexDirection:'row',   alignItems:'center'}}>
+              <Text style={{fontSize:17, fontFamily:'roboto-light', color:'#AAAAAA'}}>Celebración ocupación</Text>
+              <TextInputMask
+                 style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
+                  type={'datetime'}
+                  placeholder='DD-MM'
+                  options={{
+                      format: 'DD-MM'
+                    }}
+                  value={values.fecha_nacimiento} 
+                  onChangeText={text => { setNacimiento(text)}} />            
+              </View>            
+              <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1,  marginRight:10}}/>
+              <View style={{height:12, alignItems:'center'}}>
+                {touched.fecha_nacimiento && errors.fecha_nacimiento &&              
+                <Text style={{ fontSize: 10, color: 'red'}}>{errors.fecha_nacimiento}</Text>
+              }</View>
               <View >
               <TextInput
-              placeholder="Fecha celebración ocupacion"
-              value={values.ocupacion}
-              style={styles.input}
-              inputContainerStyle={{ borderColor: '#EAEAEA' }}
-              onChangeText={handleChange('fecha_ocupacion')}
-               onBlur={() => setFieldTouched('fecha_ocupacion')} 
-               />
-              </View>
-              <View >
-              <TextInput
-              placeholder="Document"
+              placeholder="Documento"
               keyboardType='numeric'
               maxLength={8} 
               value={values.documento}
@@ -309,7 +319,7 @@ const PerfilScreen = ({navigation}) => {
                   options={{
                       format: 'DD-MM-YYYY'
                     }}
-                  value={nacimiento} 
+                  value={values.fecha_nacimiento} 
                   onChangeText={text => { setNacimiento(text)}} />            
               </View>            
               <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1,  marginRight:10}}/>
