@@ -224,8 +224,8 @@ const conversion = ()=>{
     var interes = (nuevaCuota * 5)/100
     setValorInteres((Number(nuevaCuota)+Number(interes)).toFixed(2))
   }
-  console.log("tipo"+parseFloat(oficial).toFixed(3))
   if(proxCuota.moneda==0){
+    console.log(nuevaCuota+"nuevaa")
     setValorConversion(Number(nuevaCuota)*parseFloat(blue))
   }else{
     setValorConversion(Number(nuevaCuota)*parseFloat(oficial))

@@ -36,6 +36,7 @@ const PerfilScreen = ({navigation}) => {
     ConfirmPassErrorMessage:'',
     showDropDown: false,
     loading: false,
+    mensajeloading:'',
     modal_:false,
     progress:new Animated.Value(0),
 });
@@ -120,11 +121,12 @@ const PerfilScreen = ({navigation}) => {
     value: 4
   }];
 
-  async function registro() {
-    const URL = 'http://admidgroup.com/api_rest/index.php/api/cliente';
+  async function editarcliente() {
+    const URL = 'http://admidgroup.com/api_rest/index.php/api/editarcliente';
     setData({
         ...data,
-        loading:true
+        loading:true,
+        mensajeloading:'Guardando cambios'
     });
     axios.post(URL, {
     nombre: formRef.current.values.nombre,
@@ -175,7 +177,7 @@ const PerfilScreen = ({navigation}) => {
       }}
       enableReinitialize
       innerRef={formRef}
-      onSubmit={registro}
+      onSubmit={editarcliente}
       validationSchema={yup.object().shape({
           nombre: yup
           .string()
@@ -211,7 +213,7 @@ const PerfilScreen = ({navigation}) => {
         <View style={styles.container}>
           
             <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
-            <Loader  loading={data.loading} mensaje={'Registrando usuario..' }/>
+            <Loader  loading={data.loading} mensaje={data.mensajeloading }/>
             <View style={styles.header}>
             <Text style={{fontFamily:'roboto-thin', fontSize:20}}>Editar mis datos</Text>
             <Switch
@@ -223,7 +225,7 @@ const PerfilScreen = ({navigation}) => {
                <View>
                  <TextInput
                    value={values.nombre}
-                   style={styles.input}
+                   style={formState? styles.input : styles.inputdisabled}
                    placeholder="Nombre/s"
                    editable={formState}
                    selectTextOnFocus={formState}
@@ -239,7 +241,7 @@ const PerfilScreen = ({navigation}) => {
               <TextInput
                 placeholder="Apellido/s"
                 value={values.apellido}
-                style={styles.input}
+                style={formState? styles.input : styles.inputdisabled}
                 editable={formState}
                 selectTextOnFocus={formState}
                 inputContainerStyle={{ borderColor: '#EAEAEA' }}
@@ -255,7 +257,8 @@ const PerfilScreen = ({navigation}) => {
               <TextInput
               placeholder="Correo"
               value={values.correo}
-              style={styles.input}
+              style={formState? styles.input : styles.inputdisabled}
+              editable={formState}
               inputContainerStyle={{ borderColor: '#EAEAEA' }}
               onChangeText={handleChange('correo')}
                  onBlur={() => setFieldTouched('correo')} />
@@ -268,7 +271,8 @@ const PerfilScreen = ({navigation}) => {
               <TextInput
               placeholder="Ocupación"
               value={values.ocupacion}
-              style={styles.input}
+              style={formState? styles.input : styles.inputdisabled}
+              editable={formState}
               inputContainerStyle={{ borderColor: '#EAEAEA' }}
               onChangeText={handleChange('ocupacion')}
                onBlur={() => setFieldTouched('ocupacion')} 
@@ -284,6 +288,7 @@ const PerfilScreen = ({navigation}) => {
                  style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                   type={'datetime'}
                   placeholder='DD-MM'
+                  editable={formState}
                   options={{
                       format: 'DD-MM'
                     }}
@@ -301,7 +306,8 @@ const PerfilScreen = ({navigation}) => {
               keyboardType='numeric'
               maxLength={8} 
               value={values.documento}
-              style={styles.input}
+              editable={formState}
+              style={formState? styles.input : styles.inputdisabled}
               inputContainerStyle={{ borderColor: '#EAEAEA' }}
               onChangeText={handleChange('documento')}
                onBlur={() => setFieldTouched('documento')}   />
@@ -316,6 +322,7 @@ const PerfilScreen = ({navigation}) => {
                  style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                   type={'datetime'}
                   placeholder='DD-MM-YYYY'
+                  editable={formState}
                   options={{
                       format: 'DD-MM-YYYY'
                     }}
@@ -353,8 +360,9 @@ const PerfilScreen = ({navigation}) => {
               <View >
               <TextInput
               placeholder="Contraseña"
-              style={styles.input}
+              style={formState? styles.input : styles.inputdisabled}
               value={values.contraseña}
+              editable={formState}
               inputContainerStyle={{ borderColor: '#EAEAEA' }}
               onChangeText={handleChange('contraseña')}
               onBlur={() => setFieldTouched('contraseña')}    />
@@ -367,7 +375,8 @@ const PerfilScreen = ({navigation}) => {
               <TextInput
               placeholder="Confirme contraseña"
               value={values.confirma_contraseña}
-              style={styles.input}
+              style={formState? styles.input : styles.inputdisabled}
+              editable={formState}
               inputContainerStyle={{ borderColor: '#EAEAEA' }}    
               onChangeText={handleChange('confirma_contraseña')}
               onBlur={() => setFieldTouched('confirma_contraseña')}   />
@@ -376,14 +385,16 @@ const PerfilScreen = ({navigation}) => {
                 {touched.confirma_contraseña && errors.confirma_contraseña &&              
                 <Text style={{ fontSize: 10, color: 'red'}}>{errors.confirma_contraseña}</Text>
               }</View>
-                  </View>          
-              <View style={styles.button}>
+               </View>          
+              <View style={{marginBottom:30}} >
                   <TouchableOpacity
-                      onPress={() => console.log(formValues[0][1]) } 
-                      style={styles.signIn}>
-                      <Text style={{color:'#323232', fontFamily:'roboto-black',marginTop:20}}>GUARDAR CAMBIOS</Text>
+                      disabled = {!formState}
+                      onPress={handleSubmit } 
+                      style={formState? styles.signIn:styles.signInDisabled}
+                      >
+                      <Text style={formState? styles.text_guardar:styles.text_guardar_disabled}>GUARDAR CAMBIOS</Text>
                   </TouchableOpacity>
-                  </View>                  
+               </View>                  
               </ScrollView>
         </View>
         )}
@@ -429,6 +440,14 @@ signIn: {
   alignItems: 'center',
   borderRadius: 25
 },
+signInDisabled: {
+  width: '100%',
+  height: 44,
+  color:'#D9D9D9',
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: 25
+},
 navBar: {
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -448,6 +467,13 @@ input:{
   borderBottomColor:'#c1c1c1',
   borderBottomWidth:1,
 },
+inputdisabled:{
+  fontSize: 16,
+  color:'#D9D9D9',
+  height: 44,
+  borderBottomColor:'#c1c1c1',
+  borderBottomWidth:1,
+},
 header: {
   flex: 1,
   paddingTop:50,
@@ -455,4 +481,16 @@ header: {
   alignItems:'center',
   flexDirection:'row'
 },
+text_guardar:{
+  color:'#323232', 
+  fontFamily:'roboto-black',
+  marginTop:20, 
+  fontSize:15
+},
+text_guardar_disabled:{
+  color:'#D9D9D9', 
+  fontFamily:'roboto-black',
+  marginTop:20, 
+  fontSize:15
+}
 });
