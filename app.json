@@ -2,6 +2,8 @@
   "expo": {
     "name": "ID_GROUP",
     "slug": "ID_GROUP",
+    "sdkVersion": "34.0.0",
+
     "platforms": [
       "ios",
       "android",
