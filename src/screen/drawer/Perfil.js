@@ -7,7 +7,8 @@ import Loader from '../../utils/Loader.js'
 import * as Animatable from 'react-native-animatable';
 import { TextInputMask } from 'react-native-masked-text';
 import LabelSelect from '../../utils/LabelSelect';
-import {LinearGradient} from 'expo-linear-gradient';
+import moment from "moment";
+
 
 const {width: WIDTH} = Dimensions.get('window');
 
@@ -55,14 +56,14 @@ const PerfilScreen = ({navigation}) => {
           documento:stores[4][1],
           fecha_nacimiento: stores[5][1],
           fecha_ocupacion: stores[6][1],
-          idcontrol: stores[7][1],
+          idcliente: stores[7][1],
           interes: stores[8][1],
-          nombre: stores[9][1],
+          nombre: stores[10][1],
           ocupacion:stores[11][1],  
-          telefono: stores[11][1],
+          telefono: stores[12][1],
       });
-         console.log(stores);
        });
+       console.log(stores)
       });
     });
   }
@@ -122,24 +123,29 @@ const PerfilScreen = ({navigation}) => {
   }];
 
   async function editarcliente() {
-    const URL = 'http://admidgroup.com/api_rest/index.php/api/editarcliente';
+    const URL = 'https://admidgroup.com/api_rest/index.php/api/editarcliente';
     setData({
         ...data,
         loading:true,
         mensajeloading:'Guardando cambios'
     });
     axios.post(URL, {
+    idcliente: data.idcliente,  
     nombre: formRef.current.values.nombre,
     apellido: formRef.current.values.apellido,
     correo: formRef.current.values.correo,
+    direccion:formRef.current.values.direccion,
+    telefono:formRef.current.values.telefono,
     ocupacion: formRef.current.values.ocupacion,
+    fecha_ocupacion: moment(formRef.current.values.fecha_ocupacion, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     documento: formRef.current.values.documento,
-    fecha_nacimiento: moment(nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    fecha_nacimiento: moment(formRef.current.values.fecha_nacimiento, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     interes: 'data.interes',
     clave: formRef.current.values.contraseña,
   })
   .then(function(response) {
     // handle success
+    console.log(response);
     let resp = response.data;
     setData({
         ...data,
@@ -157,7 +163,7 @@ const PerfilScreen = ({navigation}) => {
         ...data,
         loading:false
     });
-    console.log(JSON.stringify(error));
+    console.log(error);
    }.bind(this));
 }
   
@@ -167,6 +173,8 @@ const PerfilScreen = ({navigation}) => {
         nombre: data.nombre,
         apellido: data.apellido,
         correo:data.correo,
+        direccion:data.direccion,
+        telefono:data.telefono,
         ocupacion:data.ocupacion,
         documento:data.documento,
         fecha_nacimiento:data.fecha_nacimiento,
@@ -188,6 +196,12 @@ const PerfilScreen = ({navigation}) => {
           correo: yup
           .string() 
           .required('Este campo es obligatorio'),
+          direccion: yup
+         .string() 
+         .required('Este campo es obligatorio'),
+          telefono: yup
+         .string() 
+         .required('Este campo es obligatorio'),
           ocupacion: yup
           .string() 
           .required('Este campo es obligatorio'),
@@ -267,6 +281,33 @@ const PerfilScreen = ({navigation}) => {
                 {touched.correo && errors.correo &&              
                 <Text style={{ fontSize: 10, color: 'red'}}>{errors.correo}</Text>
               }</View>
+              <View >
+            <TextInput
+            placeholder="Dirección"
+            value={values.direccion}
+            style={styles.input}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
+            onChangeText={handleChange('direccion')}
+               onBlur={() => setFieldTouched('direccion')} />
+            </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.direccion && errors.direccion &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.direccion}</Text>
+            }</View>
+            {/*------Telefono------------*/}
+            <View >
+            <TextInput
+            placeholder="Telefono"
+            value={values.telefono}
+            style={styles.input}
+            inputContainerStyle={{ borderColor: '#EAEAEA' }}
+            onChangeText={handleChange('telefono')}
+               onBlur={() => setFieldTouched('telefono')} />
+            </View>
+            <View style={{height:12, alignItems:'center'}}>
+              {touched.telefono && errors.telefono &&              
+              <Text style={{ fontSize: 10, color: 'red'}}>{errors.telefono}</Text>
+            }</View>
               <View >
               <TextInput
               placeholder="Ocupación"

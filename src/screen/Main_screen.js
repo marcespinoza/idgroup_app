@@ -29,6 +29,8 @@ const Drawer = createDrawerNavigator();
     signOut: async() => {
       try {
         await AsyncStorage.removeItem('login');
+       await AsyncStorage.getAllKeys()
+        .then(keys => AsyncStorage.multiRemove(keys))
       } catch(e) {
         console.log(e);
       }

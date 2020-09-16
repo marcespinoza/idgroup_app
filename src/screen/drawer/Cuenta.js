@@ -35,8 +35,6 @@ const CuentaScreen = ({navigation}) => {
   }
 
   async function cc(){
-    // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-    console.log("iuhccc"+idUnidad)
     setRefreshing(true)
     const URL = 'https://admidgroup.com/api_rest/index.php/api/cuotasporcliente';
     axios.post(URL, {
@@ -86,7 +84,7 @@ const retrieveData = async () => {
      stores.map((result, i, store) => {
       setData({
         ...data,
-        idcliente: stores[5][1],
+        idcliente: stores[7][1],
     });
      });
     });
@@ -107,6 +105,8 @@ async function obtenerUnidades() {
     
    }.bind(this))
    .catch(function(error) {
+    console.log(error+"KE")
+
      setRefreshing(false)
     }.bind(this)); 
  }
@@ -132,6 +132,7 @@ const [loading,setLoadingState] = useState(false);
 const [mensaje, setMensaje] = useState('Espere por favor..')
 
 let getCuotas = async () =>{
+  console.log("UNI"+idUnidad)
 setRefreshing(true)
 setUnidad({ubicacion:'-', unidad:'-', dormitorios:'-', m2_propios:'-', m2_comunes:'-',total_m2:'-'});
 setCuotas([]);
@@ -142,12 +143,10 @@ await Promise.all([requestOne, requestTwo, requestThree])
   setCuotas(responses[1].data.cuotas)    
   setProxCuota(responses[2].data.estado[0])
 	return Promise.all(responses.map(function (response) {
-		console.log(response.data);
 	}));
 }).then(function (data) {
 }).catch(function (error) {
   setRefreshing(false)
-	console.log(error);
 });}
 // then(
 // axios.spread((...responses) => {

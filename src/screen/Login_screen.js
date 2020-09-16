@@ -57,8 +57,8 @@ export default function Login(props) {
   const _storeData = async (items) => {
     try {
       await AsyncStorage.setItem('login', JSON.stringify('true'));
-      AsyncStorage.multiSet(items, err => {
-      });
+      await AsyncStorage.multiSet(items,  () => {
+     });
     } catch (error) {
        console.log(error.message);
     }
@@ -178,7 +178,7 @@ export default function Login(props) {
         })
         let items = [['nombre', resp.nombre], ['apellido', resp.apellido], ['documento', resp.documento], ['direccion', resp.direccion]
         , ['telefono', resp.telefono], ['fecha_nacimiento', resp.fecha_nacimiento], ['interes', resp.interes], ['ocupacion', resp.ocupacion]
-        , ['correo', resp.correo],['idcontrol',  resp.idcliente],['clave',  resp.clave],['fecha_ocupacion',  resp.fecha_ocupacion]];
+        , ['correo', resp.correo],['idcliente',  resp.idcliente],['clave',  resp.clave],['fecha_ocupacion',  resp.fecha_ocupacion]];
 
         _storeData(items)
       formRef.current.resetForm()
