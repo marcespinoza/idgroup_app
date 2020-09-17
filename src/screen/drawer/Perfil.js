@@ -223,7 +223,7 @@ const PerfilScreen = ({navigation}) => {
           return this.parent.contraseña === value;
           }),
       })}  >
-      {({ values, handleChange, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
+      {({ values, handleChange, errors, setFieldTouched, touched, setFieldValue, handleSubmit }) => (
         <View style={styles.container}>
           
             <StatusBar backgroundColor='#20b1e8' barStyle="light-content"/>
@@ -285,7 +285,7 @@ const PerfilScreen = ({navigation}) => {
             <TextInput
             placeholder="Dirección"
             value={values.direccion}
-            style={styles.input}
+            style={formState? styles.input : styles.inputdisabled}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
             onChangeText={handleChange('direccion')}
                onBlur={() => setFieldTouched('direccion')} />
@@ -299,7 +299,7 @@ const PerfilScreen = ({navigation}) => {
             <TextInput
             placeholder="Telefono"
             value={values.telefono}
-            style={styles.input}
+            style={formState? styles.input : styles.inputdisabled}
             inputContainerStyle={{ borderColor: '#EAEAEA' }}
             onChangeText={handleChange('telefono')}
                onBlur={() => setFieldTouched('telefono')} />
@@ -329,12 +329,13 @@ const PerfilScreen = ({navigation}) => {
                  style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                   type={'datetime'}
                   placeholder='DD-MM'
+                  style={formState? styles.dateinput : styles.dateinputdisabled}
                   editable={formState}
                   options={{
                       format: 'DD-MM'
                     }}
-                  value={values.fecha_nacimiento} 
-                  onChangeText={text => { setNacimiento(text)}} />            
+                  value={values.fecha_ocupacion} 
+                  onChangeText={text => { setFieldValue('fecha_ocupacion', text)}}/>            
               </View>            
               <View style={{borderTopColor: '#CCCCCC', borderTopWidth: 1,  marginRight:10}}/>
               <View style={{height:12, alignItems:'center'}}>
@@ -363,12 +364,13 @@ const PerfilScreen = ({navigation}) => {
                  style={{width: '38%',height: 40,backgroundColor: 'white',justifyContent: 'center', marginLeft:10, fontSize:17 }}
                   type={'datetime'}
                   placeholder='DD-MM-YYYY'
+                  style={formState? styles.dateinput : styles.dateinputdisabled}
                   editable={formState}
                   options={{
                       format: 'DD-MM-YYYY'
                     }}
                   value={values.fecha_nacimiento} 
-                  onChangeText={text => { setNacimiento(text)}} />            
+                  onChangeText={text => { setFieldValue('fecha_nacimiento', text)}}/>            
               </View>            
               <View style={{borderTopColor: '#EAEAEA', borderTopWidth: 1,  marginRight:10}}/>
               <View style={{height:12, alignItems:'center'}}>
@@ -514,6 +516,17 @@ inputdisabled:{
   height: 44,
   borderBottomColor:'#c1c1c1',
   borderBottomWidth:1,
+},
+dateinput:{
+  fontSize: 16,
+  height: 45,
+  marginLeft:10,
+},
+dateinputdisabled:{
+  fontSize: 16,
+  height: 45,
+  marginLeft:10,
+  color:'#D9D9D9',
 },
 header: {
   flex: 1,

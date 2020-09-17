@@ -146,25 +146,9 @@ await Promise.all([requestOne, requestTwo, requestThree])
 	}));
 }).then(function (data) {
 }).catch(function (error) {
+  console.log(error)
   setRefreshing(false)
 });}
-// then(
-// axios.spread((...responses) => {
-//   setRefreshing(false);  
-
-//   console.log(responses[1].data.cuotas)
-//   setUnidad(responses[0].data.unidad[0])
-//   setCuotas(responses[1].data.cuotas)    
-//   setProxCuota(responses[2].data.estado[0])
-//   // setVariacion(responses[2].data.variaciones[0].valor);
-//   // setMoneda(responses[1].data.cuotas[0].moneda)
-// })
-// )
-// .catch(errors => {
-//   console.log("Error get cuota"+errors)
-//   setLoadingState(false);
-// });
-// }  
 
 const conversion = ()=>{ 
   switch(proxCuota.mes) { 
@@ -217,8 +201,13 @@ const conversion = ()=>{
   }else{
     setNuevaCuota(proxCuota.valor_cuota)
   }
+  
+}
+
+const conversion2 = () => {
   //-----Si paso el dia 10 calculo interes---//
   var dia = new Date().getDate()
+  console.log(blue+"blue"+nuevaCuota)
   if(dia>10){
     var interes = (nuevaCuota * 5)/100
     setValorInteres((Number(nuevaCuota)+Number(interes)).toFixed(2))
@@ -252,6 +241,12 @@ useEffect(() => {
     conversion()
   }
 },[proxCuota]);
+
+useEffect(() => {
+  if(Object.keys(proxCuota).length >0){
+    conversion2()
+  }
+},[nuevaCuota]);
 
 useEffect(() => {
   if(idUnidad!=''){
