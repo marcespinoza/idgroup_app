@@ -1,11 +1,10 @@
 import React, {useState,useEffect} from 'react';
 import { View, Text, StyleSheet, Image, FlatList, RefreshControl, ScrollView, AsyncStorage, BackHandler, Button} from 'react-native';
 import Loader from './../../utils/Loader'
-import {Card, Container, Header, Content, Picker, Form } from 'native-base';
 import axios from 'axios';
 import RNPicker from 'rn-modal-picker'
-import { tr } from 'date-fns/locale';
-
+import { Container, Header, Content, Card, CardItem, Body } from "native-base";
+import moment from "moment";
 
 
 const CuentaScreen = ({navigation}) => {
@@ -24,6 +23,8 @@ const CuentaScreen = ({navigation}) => {
   const [nombreUnidad, setNombreUnidad] = useState('')
   const [mesCuota, setMesCuota] = useState('-')
   const [visible, setVisible] = React.useState(false);
+  const [banderaRefuerzo1, setBanderaRefuerzo1] = useState(false)
+  const [banderaRefuerzo2, setBanderaRefuerzo2] = useState(false)
 
   const onRefresh =() =>{
     if(idUnidad!=''){
@@ -181,6 +182,15 @@ const conversion = ()=>{
       setMesCuota('-');
   
     }
+  var fechaActual  = moment(new Date());
+  var fechaRefuerzo1 = moment(proxCuota.fecha_refuerzo1, "DD-MM-YYYY HH:mm:ss");
+  var fechaRefuerzo2 = moment(proxCuota.fecha_refuerzo2, "DD-MM-YYYY HH:mm:ss");
+  var diffechaRefuerzo1 = fechaActual.diff(fechaRefuerzo1, 'days', false)
+
+  if(diffechaRefuerzo1<35){
+    setBanderaRefuerzo1(true)
+  }
+
    //----Si es primer cuota no aplico variacion----// 
   if(proxCuota.moneda==0 && proxCuota.prox_cuota!=1){ 
     //---------Obtengo la ultima cuota para calcular la proxima de acuerdo a la variacion  
@@ -386,6 +396,12 @@ useEffect(()=>{
             <Text style={{color:'#AEAEAE'}}>Cotización sujeta a modificaciones</Text>
             </View>
             </Card>
+            {banderaRefuerzo1?
+            <Card style={{marginLeft:5, marginRight:5}}>
+            <CardItem  style={{backgroundColor:'#F96060'}}>
+            <Text style={{fontFamily:'roboto-black', color:'#FFF'}}>Refuerzo uno </Text><Text style={{color:'#FFF'}}>{proxCuota.fecha_refuerzo1}</Text>
+            </CardItem>
+            </Card> : null}
             <Card style={styles.navBar}>
             <View style={styles.leftContainer}>
             <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/check.png')} />
