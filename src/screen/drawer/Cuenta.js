@@ -5,7 +5,7 @@ import axios from 'axios';
 import RNPicker from 'rn-modal-picker'
 import { Container, Header, Content, Card, CardItem, Body } from "native-base";
 import moment from "moment";
-
+import Notificacionsvg from '../../../assets/images/notificacion.svg';
 
 const CuentaScreen = ({navigation}) => {
 
@@ -186,9 +186,16 @@ const conversion = ()=>{
   var fechaRefuerzo1 = moment(proxCuota.fecha_refuerzo1, "DD-MM-YYYY HH:mm:ss");
   var fechaRefuerzo2 = moment(proxCuota.fecha_refuerzo2, "DD-MM-YYYY HH:mm:ss");
   var diffechaRefuerzo1 = fechaActual.diff(fechaRefuerzo1, 'days', false)
+  var diffechaRefuerzo2 = fechaActual.diff(fechaRefuerzo2, 'days', false)
 
-  if(diffechaRefuerzo1<35){
+  if(proxCuota.pago_refuerzo1===null && diffechaRefuerzo1<=31){
+    console.log(diffechaRefuerzo1)
     setBanderaRefuerzo1(true)
+  }
+
+  if(proxCuota.pago_refuerzo2===null && diffechaRefuerzo2<=31){
+    console.log(diffechaRefuerzo2)
+    setBanderaRefuerzo2(true)
   }
 
    //----Si es primer cuota no aplico variacion----// 
@@ -397,11 +404,35 @@ useEffect(()=>{
             </View>
             </Card>
             {banderaRefuerzo1?
+            <View style={{display:'flex', flexDirection:'row'}}>
+              <View style={{flex: 2, alignItems:'center',margin:6, justifyContent:'center', backgroundColor:'#fff', borderTopLeftRadius:20, borderBottomLeftRadius:20}}>
+               <Notificacionsvg width="80" height="20"/>
+                </View>
+              <View style={{flex:11}}>
             <Card style={{marginLeft:5, marginRight:5}}>
             <CardItem  style={{backgroundColor:'#F96060'}}>
-            <Text style={{fontFamily:'roboto-black', color:'#FFF'}}>Refuerzo uno </Text><Text style={{color:'#FFF'}}>{proxCuota.fecha_refuerzo1}</Text>
+            <View style={styles.leftContainer}>
+            <Text style={{fontFamily:'roboto-black', color:'#FFF'}}>Refuerzo uno </Text>
+            </View>
+            <Text style={{color:'#FFF'}}>{proxCuota.fecha_refuerzo1}</Text>
             </CardItem>
-            </Card> : null}
+            </Card></View>
+            </View> : null}
+            {banderaRefuerzo2?
+            <View style={{display:'flex', flexDirection:'row'}}>
+            <View style={{flex: 2, alignItems:'center',margin:6, justifyContent:'center', backgroundColor:'#fff', borderTopLeftRadius:20, borderBottomLeftRadius:20}}>
+             <Notificacionsvg width="20" height="20"/>
+              </View>
+            <View style={{flex:11}}>
+          <Card style={{marginLeft:5, marginRight:5}}>
+          <CardItem  style={{backgroundColor:'#F96060'}}>
+          <View style={styles.leftContainer}>
+          <Text style={{fontFamily:'roboto-black', color:'#FFF'}}>Refuerzo dos </Text>
+          </View>
+          <Text style={{color:'#FFF'}}>{proxCuota.fecha_refuerzo2}</Text>
+          </CardItem>
+          </Card></View>
+          </View> : null}
             <Card style={styles.navBar}>
             <View style={styles.leftContainer}>
             <Image style={{alignSelf:'center', margin:10}}source={require('../../../Images/check.png')} />
@@ -483,6 +514,7 @@ leftContainer: {
   flex: 1,
   flexDirection: 'row',
   justifyContent: 'flex-start',
+  
 },
 rightContainer: {
   flex: 1,
@@ -543,5 +575,10 @@ pickerStyle: {
   shadowColor: "#d3d3d3",
   borderRadius: 5,
   flexDirection: "row"
+},
+halfcircle :{
+  backgroundColor: '#000',
+  borderTopRightRadius: 110,  /* 100px of height + 10px of border */
+  borderBottomRightRadius: 110,
 }
 });
